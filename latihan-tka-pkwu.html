@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Latihan TKA PKWU</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF9F4;
+    --surface:#FFFFFF;
+    --ink:#1E2A2E;
+    --ink-muted:#5C6B6E;
+    --ink-faint:#93A0A2;
+    --primary:#2F6B5E;
+    --primary-dark:#234f45;
+    --primary-tint:#E7F0EC;
+    --accent:#C1863E;
+    --accent-tint:#F7ECDC;
+    --danger:#B3492B;
+    --danger-tint:#FBEAE4;
+    --border:#E3E0D6;
+    --border-strong:#CFCBBC;
+    --radius:10px;
+    --shadow:0 1px 2px rgba(30,42,46,0.06), 0 6px 20px rgba(30,42,46,0.05);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', -apple-system, sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .serif{font-family:'Fraunces', serif;}
+  a{color:inherit;}
+  button{font-family:inherit;}
+
+  /* ---------- layout shells ---------- */
+  .app{max-width:720px;margin:0 auto;padding:0 20px 80px;}
+  .topbar{
+    position:sticky;top:0;z-index:20;
+    background:rgba(250,249,244,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--border);
+  }
+  .topbar-inner{
+    max-width:720px;margin:0 auto;padding:14px 20px;
+    display:flex;align-items:center;gap:14px;
+  }
+  .brand{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:17px;
+    letter-spacing:-0.01em;
+    white-space:nowrap;
+  }
+  .brand span{color:var(--primary);}
+
+  .progress-track{
+    flex:1;height:6px;background:var(--border);border-radius:99px;overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;background:var(--primary);border-radius:99px;
+    transition:width .35s ease;
+  }
+  .progress-label{
+    font-size:13px;color:var(--ink-muted);white-space:nowrap;font-variant-numeric:tabular-nums;
+  }
+
+  header.hero{padding:56px 0 8px;}
+  header.hero h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:34px;
+    letter-spacing:-0.015em;
+    margin:0 0 10px;
+    color:var(--ink);
+  }
+  header.hero p{
+    color:var(--ink-muted);
+    font-size:16px;
+    max-width:52ch;
+    margin:0;
+  }
+
+  /* ---------- cards ---------- */
+  .section-title{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:20px;
+    margin:44px 0 14px;
+    color:var(--ink);
+  }
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:20px 22px;
+  }
+  .card + .card{margin-top:10px;}
+
+  .draft-card{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    cursor:pointer;
+    transition:border-color .15s ease;
+  }
+  .draft-card:hover{border-color:var(--border-strong);}
+  .draft-meta{font-size:14px;color:var(--ink-muted);margin-top:3px;}
+  .draft-bar{
+    width:64px;height:5px;background:var(--border);border-radius:99px;overflow:hidden;flex-shrink:0;
+  }
+  .draft-bar-fill{height:100%;background:var(--accent);}
+  .draft-right{display:flex;align-items:center;gap:14px;flex-shrink:0;}
+  .draft-pct{font-size:13px;color:var(--ink-faint);font-variant-numeric:tabular-nums;}
+
+  .mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .mode-card{
+    background:var(--surface);
+    border:1.5px solid var(--border);
+    border-radius:var(--radius);
+    padding:20px;
+    cursor:pointer;
+    text-align:left;
+    transition:border-color .15s ease, transform .1s ease;
+  }
+  .mode-card:hover{border-color:var(--primary);}
+  .mode-card:active{transform:scale(0.98);}
+  .mode-card .num{
+    font-family:'Fraunces', serif;font-size:26px;font-weight:600;color:var(--primary);
+    display:block;margin-bottom:6px;
+  }
+  .mode-card .label{font-size:14px;color:var(--ink-muted);}
+  .mode-card.wide{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;}
+  .mode-card.wide .label{font-size:15px;color:var(--ink);font-weight:500;}
+
+  .history-row{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:13px 0;border-bottom:1px solid var(--border);
+    font-size:14px;
+  }
+  .history-row:last-child{border-bottom:none;}
+  .history-score{
+    font-family:'Fraunces', serif;font-weight:600;font-size:16px;
+  }
+  .history-score.good{color:var(--primary);}
+  .history-score.mid{color:var(--accent);}
+  .history-score.low{color:var(--danger);}
+  .empty-hint{color:var(--ink-faint);font-size:14px;padding:6px 2px;}
+
+  /* ---------- quiz screen ---------- */
+  .quiz-wrap{padding-top:34px;}
+  .qnum{
+    font-family:'Fraunces', serif;
+    font-size:42px;font-weight:600;color:var(--primary);
+    line-height:1;margin-bottom:4px;
+  }
+  .qtype-label{
+    font-size:12.5px;color:var(--ink-faint);margin-bottom:22px;
+  }
+  .konteks-box{
+    background:var(--primary-tint);
+    border-left:3px solid var(--primary);
+    border-radius:6px;
+    padding:16px 18px;
+    font-size:14.5px;
+    color:var(--ink);
+    margin-bottom:22px;
+    white-space:pre-line;
+  }
+  .qtext{
+    font-size:17px;
+    white-space:pre-line;
+    margin-bottom:22px;
+  }
+  .opsi-list{display:flex;flex-direction:column;gap:8px;margin-bottom:22px;}
+  .opsi{
+    display:flex;align-items:flex-start;gap:12px;
+    padding:13px 16px;
+    border:1.5px solid var(--border);
+    border-radius:var(--radius);
+    cursor:pointer;
+    font-size:15px;
+    transition:border-color .12s ease, background .12s ease;
+  }
+  .opsi:hover{border-color:var(--border-strong);}
+  .opsi.selected{border-color:var(--primary);background:var(--primary-tint);}
+  .opsi input{margin-top:3px;accent-color:var(--primary);flex-shrink:0;}
+  .opsi .lab{font-weight:600;color:var(--ink-muted);margin-right:2px;}
+
+  .opsi.correct{border-color:var(--primary);background:var(--primary-tint);}
+  .opsi.wrong{border-color:var(--danger);background:var(--danger-tint);}
+
+  table.pernyataan{width:100%;border-collapse:collapse;margin-bottom:22px;font-size:14.5px;}
+  table.pernyataan th{
+    text-align:left;font-weight:600;color:var(--ink-muted);font-size:12.5px;
+    padding:8px 10px;border-bottom:1.5px solid var(--border-strong);
+  }
+  table.pernyataan th.stat-col{text-align:center;width:90px;}
+  table.pernyataan td{padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+  table.pernyataan td.stat-col{text-align:center;}
+  table.pernyataan tr:last-child td{border-bottom:none;}
+  table.pernyataan input{accent-color:var(--primary);}
+  .row-correct td{background:var(--primary-tint);}
+  .row-wrong td{background:var(--danger-tint);}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:13px 22px;
+    border-radius:99px;
+    border:none;
+    font-size:15px;font-weight:600;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .12s ease, transform .1s ease;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-primary{background:var(--primary);color:#fff;}
+  .btn-primary:disabled{background:var(--border-strong);color:var(--ink-faint);cursor:not-allowed;}
+  .btn-primary:not(:disabled):hover{background:var(--primary-dark);}
+  .btn-ghost{background:transparent;color:var(--ink-muted);border:1.5px solid var(--border);}
+  .btn-ghost:hover{border-color:var(--border-strong);}
+  .btn-block{width:100%;}
+  .btn-row{display:flex;gap:10px;margin-top:6px;}
+
+  .feedback{
+    border-radius:var(--radius);
+    padding:18px 20px;
+    margin-bottom:22px;
+    border-left:3px solid var(--primary);
+    background:var(--primary-tint);
+    animation:rise .25s ease;
+  }
+  .feedback.wrong{border-left-color:var(--danger);background:var(--danger-tint);}
+  .feedback-title{
+    font-weight:600;font-size:14.5px;margin-bottom:8px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .feedback.wrong .feedback-title{color:var(--danger);}
+  .feedback:not(.wrong) .feedback-title{color:var(--primary);}
+  .feedback-body{font-size:14.5px;color:var(--ink);white-space:pre-line;}
+  .feedback-note{
+    margin-top:12px;padding-top:12px;border-top:1px solid rgba(0,0,0,0.08);
+    font-size:13px;color:var(--ink-muted);font-style:italic;
+  }
+
+  @keyframes rise{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ---------- result screen ---------- */
+  .score-hero{text-align:center;padding:40px 0 10px;}
+  .score-num{
+    font-family:'Fraunces', serif;font-weight:700;font-size:64px;color:var(--primary);
+    line-height:1;
+  }
+  .score-sub{color:var(--ink-muted);font-size:15px;margin-top:8px;}
+
+  .review-item{
+    display:flex;align-items:center;gap:12px;
+    padding:13px 16px;border:1px solid var(--border);border-radius:var(--radius);
+    cursor:pointer;font-size:14.5px;
+  }
+  .review-item + .review-item{margin-top:8px;}
+  .review-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .review-dot.ok{background:var(--primary);}
+  .review-dot.no{background:var(--danger);}
+  .review-num{font-family:'Fraunces', serif;font-weight:600;color:var(--ink-muted);width:24px;}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:#fff;padding:11px 20px;border-radius:99px;
+    font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;
+    z-index:50;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
+
+  .link-btn{background:none;border:none;color:var(--ink-muted);font-size:13.5px;cursor:pointer;text-decoration:underline;padding:0;font-family:inherit;}
+  .link-btn:hover{color:var(--ink);}
+
+  footer.appfoot{text-align:center;padding:50px 0 10px;color:var(--ink-faint);font-size:12.5px;}
+
+  @media (max-width:480px){
+    header.hero h1{font-size:27px;}
+    .mode-grid{grid-template-columns:1fr;}
+    .qnum{font-size:34px;}
+    .score-num{font-size:52px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar" id="topbar" style="display:none;">
+  <div class="topbar-inner">
+    <div class="brand">Belajar<span>PKWU</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-label" id="progressLabel">0 / 0</div>
+  </div>
+</div>
+
+<div class="app" id="app"></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const RAW_DATA = {"mata_pelajaran": "TKA PKWU (Produk/Projek Kreatif dan Kewirausahaan) - SMK/MAK", "sumber": "Ditranskripsi dari foto halaman buku prediksi soal TKA PKWU (asli milik pengguna)", "catatan_umum": "File ini dibuat melalui transkripsi manual dari foto halaman buku. Sebagian besar soal sudah diverifikasi langsung dari gambar sumber. Beberapa soal memiliki field catatan yang menandai bagian yang perlu dicek ulang ke buku fisik karena kualitas foto (bayangan/pantulan cahaya) atau kemungkinan salah ketik pada buku sumber. Mohon lakukan spot-check sebelum digunakan sebagai sumber utama website.", "prediksi_1": {"judul": "PREDIKSI 1 - PRODUK/PROJEK KREATIF DAN KEWIRAUSAHAAN - TKA 2026/2027", "jumlah_soal": 30, "alokasi_waktu_menit": 60, "soal": [{"nomor": 1, "tipe": "pilihan_ganda", "teks_soal": "Seorang siswa SMK mengamati bahwa banyak teman-temannya yang sering melewatkan sarapan karena keterbatasan waktu di pagi hari. Ia melihat ini sebagai sebuah kesempatan untuk memulai usaha. Berdasarkan kerangka asesmen kompetensi kewirausahaan, langkah pertama yang paling tepat untuk dilakukan dalam membaca peluang usaha adalah .... (Prediksi TKA 2026)", "opsi": [{"label": "A", "teks": "segera mencari pemasok bahan baku roti dan susu untuk dijual"}, {"label": "B", "teks": "membuat logo dan merek dagang yang menarik untuk produk sarapan"}, {"label": "C", "teks": "menyusun proposal usaha lengkap untuk diajukan ke pihak sekolah"}, {"label": "D", "teks": "mengidentifikasi potensi yang ada di lingkungan internal dan eksternal"}, {"label": "E", "teks": "langsung memproduksi berbagai jenis makanan sarapan dalam jumlah besar"}], "jawaban_benar": "D", "penjelasan": "Soal ini bertujuan untuk mengukur pemahaman siswa mengenai konsep dasar analisis peluang usaha. Berdasarkan deskripsi kompetensi kewirausahaan, kemampuan membaca peluang usaha dimulai dengan mengidentifikasi potensi yang ada di lingkungan internal dan eksternal. Dalam konteks soal, pengamatan siswa terhadap kebiasaan teman-temannya adalah bagian dari identifikasi potensi di lingkungan eksternal. Langkah selanjutnya yang sistematis adalah menganalisis lebih dalam potensi tersebut, seperti mencari tahu jenis sarapan yang diminati, daya beli, dan kebiasaan spesifik lainnya, sebelum melangkah ke tahap produksi atau pembuatan proposal."}, {"nomor": 2, "tipe": "pilihan_ganda", "teks_soal": "Sebuah tim siswa ingin mengembangkan produk tas laptop dari bahan daur ulang kain perca. Mereka telah memiliki ide, membuat sketsa desain, dan memilih bahan baku utama. Untuk memastikan fungsionalitas dan estetika produk sesuai dengan harapan konsumen sebelum diproduksi massal, tahapan pengembangan produk yang harus mereka lakukan selanjutnya adalah .... (TKA 2025)", "opsi": [{"label": "A", "teks": "menganalisis laporan keuangan dari usaha sejenis"}, {"label": "B", "teks": "mendaftarkan desain produk untuk mendapatkan Hak Kekayaan Intelektual (HaKI)"}, {"label": "C", "teks": "membuat prototipe produk untuk diuji coba dan mendapatkan umpan balik"}, {"label": "D", "teks": "merancang strategi pemasaran digital melalui media sosial"}, {"label": "E", "teks": "menentukan strategi distribusi produk ke berbagai toko buku"}], "jawaban_benar": "C", "penjelasan": "Soal ini mengukur kemampuan siswa dalam menerapkan konsep pengembangan prototipe produk. Prototipe adalah model awal produk yang dibuat untuk menguji konsep atau proses kerja. Setelah tahap ide dan sketsa desain, langkah logis berikutnya dalam pengembangan produk adalah membuat prototipe. Tujuannya adalah untuk menguji fungsionalitas (misalnya, kekuatan tas, kenyamanan saat digunakan) dan estetika secara nyata. Umpan balik dari pengujian prototipe ini sangat penting untuk penyempurnaan produk sebelum masuk ke tahap produksi massal. Pilihan lain seperti analisis keuangan, pendaftaran HaKI, pemasaran, dan distribusi merupakan tahapan penting dalam wirausaha, tetapi dilakukan setelah wujud dan fungsi produk telah terdefinisi dengan jelas melalui pembuatan prototipe."}, {"nomor": 3, "tipe": "tabel_pernyataan", "teks_soal": "Sebuah UMKM kuliner \"Dapur Bunda\" menjadi terkenal karena resep sambal rahasianya yang unik dan logo bergambar seorang ibu sedang mengulek sambal. Melihat kesuksesan tersebut, kompetitor meluncurkan produk sambal dengan nama \"Dapur Mama\" dan menggunakan logo yang sangat mirip. Akibatnya, sebagian konsumen keliru membeli produk kompetitor.\nBerdasarkan situasi tersebut, tentukan Tepat atau Tidak Tepat untuk setiap solusi permasalahan HaKI yang dapat dilakukan oleh \"Dapur Bunda\"! (Prediksi TKA 2026)", "kolom_status": ["Tepat", "Tidak Tepat"], "pernyataan": [{"no": 1, "teks": "Segera mengubah resep sambal agar berbeda total dari produk yang sudah dikenal masyarakat.", "status_benar": "Tidak Tepat"}, {"no": 2, "teks": "Mendaftarkan nama dan logo \"Dapur Bunda\" sebagai Merek Dagang untuk mendapatkan perlindungan hukum.", "status_benar": "Tepat"}, {"no": 3, "teks": "Mengajukan gugatan atas pelanggaran Hak Cipta terhadap resep sambal yang ditiru oleh kompetitor.", "status_benar": "Tidak Tepat"}], "penjelasan": [{"no": 1, "teks": "Mengubah resep justru akan menghilangkan keunggulan kompetitif utama yang membuat \"Dapur Bunda\" terkenal. Resep rahasia adalah aset (dapat dilindungi sebagai rahasia dagang), bukan masalah yang harus dihilangkan. Solusi seharusnya berfokus pada perlindungan identitas usaha, bukan mengubah produk unggulannya."}, {"no": 2, "teks": "Nama dagang (\"Dapur Bunda\") dan logo adalah identitas pembeda yang dapat dilindungi oleh Merek Dagang. Pendaftaran ini memberikan dasar hukum yang kuat bagi \"Dapur Bunda\" untuk melarang pihak lain menggunakan merek yang serupa yang dapat menimbulkan kebingungan di kalangan konsumen. Ini adalah langkah paling strategis untuk melindungi identitas usaha dan keunggulannya."}, {"no": 3, "teks": "Hak Cipta melindungi ekspresi seni dan sastra, bukan ide atau metode seperti resep masakan. Resep lebih cocok dilindungi sebagai Rahasia Dagang. Oleh karena itu, mengajukan gugatan pelanggaran Hak Cipta untuk resep adalah langkah yang tidak tepat secara hukum."}]}, {"nomor": 4, "tipe": "tabel_pernyataan", "teks_soal": "Sebuah kelompok wirausaha siswa akan memproduksi 200 botol minuman \"Jahe Merah Hangat\" untuk dijual saat acara pentas seni sekolah. Mereka telah menghitung biaya bahan baku (jahe merah, gula, air, dan rempah lain) sebesar Rp400.000 dan biaya botol kemasan sebesar Rp200.000. Mereka menargetkan keuntungan sebesar 25% dari total biaya produksi.\nBerdasarkan situasi tersebut, tentukan Logis atau Tidak Logis untuk setiap langkah perencanaan produksi berikut! (Prediksi TKA 2026)", "kolom_status": ["Logis", "Tidak Logis"], "pernyataan": [{"no": 1, "teks": "Menetapkan harga jual per botol hanya dengan membagi total biaya bahan baku (Rp400.000) dengan jumlah produksi (200 botol).", "status_benar": "Tidak Logis"}, {"no": 2, "teks": "Mengabaikan biaya tenaga kerja dalam perhitungan total biaya produksi dengan asumsi dikerjakan sendiri oleh anggota kelompok.", "status_benar": "Tidak Logis"}, {"no": 3, "teks": "Menyertakan biaya tak terduga (misalnya, 10% dari total biaya) dalam perhitungan modal untuk mengantisipasi kenaikan harga atau kegagalan produk.", "status_benar": "Logis"}], "penjelasan": [{"no": 1, "teks": "Menetapkan harga jual hanya berdasarkan biaya bahan baku akan mengabaikan komponen biaya produksi lainnya (seperti biaya botol kemasan) dan target keuntungan. Ini akan menyebabkan perhitungan Harga Pokok Produksi (HPP) menjadi keliru dan target keuntungan tidak akan tercapai."}, {"no": 2, "teks": "Meskipun dikerjakan sendiri, tenaga kerja tetap memiliki nilai ekonomis dan harus diperhitungkan dalam biaya produksi untuk mendapatkan gambaran biaya yang sebenarnya. Mengabaikannya akan membuat usaha terlihat lebih menguntungkan daripada kenyataannya dan tidak dapat menjadi acuan jika usaha berkembang dan perlu merekrut tenaga kerja."}, {"no": 3, "teks": "Dalam perencanaan produksi dan keuangan, menyertakan dana darurat atau biaya tak terduga adalah praktik yang baik. Ini menunjukkan perencanaan yang matang untuk mengantisipasi risiko seperti kenaikan harga bahan baku, kerusakan alat, atau produk yang gagal dalam proses quality control sehingga kelangsungan produksi tetap terjaga."}], "catatan": "Perhatian: status_benar pernyataan 2 tertulis 'Logis' pada tabel soal namun penjelasan menyebut 'Tidak Logis'. Cek ulang ke sumber asli untuk memastikan (kemungkinan kolom pada tabel asli tercentang di 'Logis'). Mohon verifikasi manual."}, {"nomor": 5, "tipe": "multi_select", "teks_soal": "Sebuah UMKM meluncurkan produk keripik singkong dengan berbagai varian rasa kekinian (keju, barbeku, rumput laut) dengan merek \"Kriukers\". Produk ini menargetkan segmen pasar remaja dan anak muda. Penjualan awal dilakukan melalui kantin sekolah dan warung sekitar lokasi produksi. Setelah tiga bulan berjalan, penjualan tidak menunjukkan peningkatan signifikan dan cenderung stagnan. Analisis menemukan bahwa jangkauan pasar sangat terbatas dan banyak calon konsumen di luar area tersebut yang tidak mengetahui keberadaan produk \"Kriukers\".\nBerdasarkan situasi tersebut, manakah strategi pemasaran yang paling relevan untuk diterapkan agar usaha \"Kriukers\" dapat berkembang? (Pilihlah jawaban yang benar! Jawaban benar lebih dari satu) (TKA 2025)", "opsi": [{"id": 1, "teks": "Mengganti bahan baku singkong dengan kentang agar dapat bersaing dengan merek besar."}, {"id": 2, "teks": "Mendesain ulang kemasan menjadi lebih modern dan Instagram-able untuk menarik target pasar muda."}, {"id": 3, "teks": "Menurunkan harga jual secara drastis dengan mengurangi berat bersih produk dalam setiap kemasan."}, {"id": 4, "teks": "Memperluas saluran distribusi dengan menjalin kemitraan dengan koperasi, kafe, dan platform e-commerce."}, {"id": 5, "teks": "Melakukan promosi digital secara aktif melalui media sosial seperti Instagram dan TikTok dengan melibatkan influencer kuliner."}], "jawaban_benar": [2, 4, 5], "penjelasan": "Masalah utama \"Kriukers\" adalah jangkauan pasar yang terbatas dan kurangnya brand awareness. Pernyataan 2 benar karena kemasan yang menarik secara visual (Instagram-able) sangat efektif untuk menarik perhatian target pasar remaja dan mendorong mereka untuk membagikannya di media sosial, sehingga meningkatkan brand awareness secara organik. Pernyataan 4 benar karena masalah utama adalah distribusi yang terbatas; dengan memperluas saluran distribusi ke tempat-tempat yang sering dikunjungi target pasar (kafe) dan platform online (e-commerce), produk akan lebih mudah dijangkau oleh konsumen yang lebih luas. Pernyataan 5 benar karena target pasarnya adalah anak muda yang merupakan pengguna aktif media sosial; promosi melalui platform seperti Instagram dan TikTok, apalagi dengan bantuan influencer, adalah cara yang sangat efektif untuk membangun brand awareness dan mendorong penjualan. Pilihan 1 tidak relevan karena mengubah produk inti berarti menciptakan produk baru, bukan solusi pemasaran. Pilihan 3 berisiko karena menurunkan harga secara drastis dengan mengurangi kuantitas dapat merusak persepsi kualitas dan kepercayaan konsumen."}, {"nomor": 6, "tipe": "pilihan_ganda", "teks_soal": "Seorang wirausahawan ingin mengetahui apakah usahanya menghasilkan laba atau menderita rugi selama periode satu bulan terakhir. Untuk tujuan tersebut, ia perlu menganalisis seluruh pendapatan yang diterima dan seluruh beban yang dikeluarkan dalam periode tersebut. Laporan keuangan yang paling tepat untuk menyajikan informasi ini adalah .... (TKA 2025)", "opsi": [{"label": "A", "teks": "laporan arus kas"}, {"label": "B", "teks": "laporan perubahan modal"}, {"label": "C", "teks": "neraca keuangan"}, {"label": "D", "teks": "laporan laba rugi"}, {"label": "E", "teks": "catatan atas laporan keuangan"}], "jawaban_benar": "D", "penjelasan": "Soal ini mengukur pemahaman dasar siswa mengenai fungsi dari berbagai jenis laporan keuangan. Sesuai dengan prinsip akuntansi, laporan laba rugi adalah laporan yang secara spesifik menyajikan perbandingan antara total pendapatan (revenue) dengan total beban (expenses) dalam suatu periode waktu tertentu. Selisih dari keduanya akan menunjukkan laba bersih (jika pendapatan lebih besar dari beban) atau rugi bersih (jika beban lebih besar dari pendapatan). Laporan lain memiliki fungsi berbeda: neraca menunjukkan posisi aset, liabilitas, dan ekuitas pada satu titik waktu; laporan arus kas melacak pergerakan kas; dan laporan perubahan modal menunjukkan perubahan modal pemilik."}, {"nomor": 7, "tipe": "pilihan_ganda", "teks_soal": "Sebuah usaha katering rumahan yang memproduksi kue bolu sering menerima keluhan dari pelanggan bahwa rasa dan tekstur kue yang mereka terima tidak konsisten; kadang terlalu manis, kadang kurang mengembang. Untuk mengatasi masalah ini, langkah pengendalian mutu (quality assurance) yang paling efektif untuk diterapkan adalah .... (Prediksi TKA 2026)", "opsi": [{"label": "A", "teks": "meningkatkan anggaran promosi untuk memperbaiki citra produk"}, {"label": "B", "teks": "membeli oven baru yang lebih canggih dan berukuran lebih besar"}, {"label": "C", "teks": "menetapkan resep standar dan prosedur kerja (SOP) yang harus diikuti secara ketat"}, {"label": "D", "teks": "memberikan diskon besar pada setiap pembelian untuk menutupi kekurangan produk"}, {"label": "E", "teks": "mencari pemasok bahan baku baru yang menawarkan harga paling murah"}], "jawaban_benar": "C", "penjelasan": "Soal ini mengukur kemampuan siswa untuk menerapkan konsep pengendalian mutu dalam sebuah kasus nyata. Masalah utama dalam skenario adalah inkonsistensi produk, yang biasanya disebabkan oleh tidak adanya standar dalam proses produksi. Dengan menetapkan resep standar (takaran bahan yang pasti) dan prosedur kerja atau Standard Operating Procedure/SOP (langkah-langkah pembuatan, suhu dan waktu memanggang yang baku), maka setiap kue yang diproduksi akan melalui proses yang sama persis. Hal ini akan meminimalkan variasi dan menghasilkan produk dengan rasa serta tekstur yang konsisten, yang merupakan inti dari pengendalian mutu. Pilihan lain tidak langsung menyelesaikan akar masalah inkonsistensi."}, {"nomor": 8, "tipe": "tabel_pernyataan", "teks_soal": "Dalam sebuah proposal usaha untuk pendirian coffee shop \"Kafein Kawan\" di dekat area perkantoran, dipaparkan beberapa analisis. Target pasarnya adalah para pekerja kantor berusia 25-40 tahun. Harga produk dipatok di segmen menengah ke atas. Analisis SWOT menunjukkan kekuatan pada resep kopi unik, tetapi kelemahan pada modal yang terbatas.\nBerdasarkan deskripsi tersebut, tentukan Logis atau Tidak Logis untuk setiap komponen dalam proposal usaha tersebut! (TKA 2025)", "kolom_status": ["Logis", "Tidak Logis"], "pernyataan": [{"no": 1, "teks": "Strategi pemasaran utama akan difokuskan melalui pemasangan iklan di koran lokal dan radio konvensional.", "status_benar": "Tidak Logis"}, {"no": 2, "teks": "Proyeksi keuangan tidak memasukkan biaya sewa lokasi sebagai salah satu komponen biaya tetap bulanan.", "status_benar": "Tidak Logis"}, {"no": 3, "teks": "Analisis pesaing menyatakan bahwa meskipun ada beberapa kedai kopi di sekitar, tidak ada yang menawarkan fasilitas meeting room kecil sehingga ini akan menjadi nilai tambah \"Kafein Kawan\".", "status_benar": "Logis"}], "penjelasan": [{"no": 1, "teks": "Target pasar adalah pekerja kantor usia 25-40 tahun yang cenderung aktif menggunakan media digital. Strategi pemasaran melalui koran lokal dan radio konvensional kurang efektif untuk menjangkau segmen ini dibandingkan dengan pemasaran digital. Terdapat ketidaksesuaian antara target pasar dan pilihan media promosi."}, {"no": 2, "teks": "Biaya sewa lokasi, terutama untuk coffee shop di area perkantoran, merupakan salah satu komponen biaya tetap yang paling signifikan. Mengabaikan biaya ini dalam proyeksi keuangan akan menghasilkan perhitungan titik impas (Break-Even Point) dan proyeksi laba yang tidak akurat dan menyesatkan."}, {"no": 3, "teks": "Ini adalah contoh analisis pesaing yang baik. Dengan mengidentifikasi apa yang tidak ditawarkan oleh pesaing (gap di pasar) dan menjadikannya sebagai keunggulan atau nilai tambah (unique value proposition), \"Kafein Kawan\" menunjukkan strategi diferensiasi yang jelas untuk menarik target pasarnya, yaitu para pekerja yang mungkin membutuhkan tempat untuk rapat informal."}]}, {"nomor": 9, "tipe": "tabel_pernyataan", "teks_soal": "Sebuah UMKM memproduksi salad buah segar dalam kemasan siap santap. Produk ini menggunakan bahan pengawet dan memiliki masa simpan maksimal 2 hari di suhu dingin. Pemilik usaha ingin memperluas jangkauan pasarnya ke luar kota.\nBerdasarkan karakteristik produk tersebut, tentukan Tepat atau Tidak Tepat untuk setiap strategi distribusi yang dipertimbangkan! (Prediksi TKA 2026)", "kolom_status": ["Tepat", "Tidak Tepat"], "pernyataan": [{"no": 1, "teks": "Menggunakan jasa ekspedisi kargo reguler dengan estimasi waktu pengiriman antarkota 3-4 hari.", "status_benar": "Tidak Tepat"}, {"no": 2, "teks": "Menjalin kerja sama dengan sistem keagenan atau reseller di kota tujuan yang memiliki fasilitas pendingin.", "status_benar": "Tepat"}, {"no": 3, "teks": "Menjual produk melalui marketplace besar dan menyimpannya dalam jumlah banyak di gudang marketplace tersebut.", "status_benar": "Tidak Tepat"}], "penjelasan": [{"no": 1, "teks": "Produk memiliki masa simpan hanya 2 hari, sedangkan estimasi pengiriman adalah 3-4 hari. Ini berarti produk akan rusak sebelum sampai ke tangan konsumen. Strategi distribusi ini tidak cocok untuk produk yang mudah rusak (perishable)."}, {"no": 2, "teks": "Strategi ini adalah solusi yang cerdas. Dengan mengirimkan produk secara cepat (misalnya, via travel atau kurir sameday) ke reseller di kota tujuan, dan didistribusikan secara lokal dalam kondisi segar, ini menjaga kualitas produk sekaligus memperluas jangkauan pasar."}, {"no": 3, "teks": "Menyimpan produk di gudang marketplace (sistem fulfillment) umumnya cocok untuk produk tahan lama. Menyimpan salad buah dengan cara ini sangat berisiko merusak kualitas produk kecuali jika marketplace menyediakan fasilitas gudang pendingin khusus."}]}, {"nomor": 10, "tipe": "multi_select", "teks_soal": "Seorang calon wirausahawan melakukan observasi di sebuah kompleks perumahan baru. Data yang ia kumpulkan adalah sebagai berikut:\n- Mayoritas penghuni adalah keluarga muda dengan anak-anak usia sekolah dasar;\n- Belum ada toko yang menjual peralatan tulis dan kebutuhan sekolah di dalam kompleks;\n- Banyak orang tua yang bekerja dan sering menggunakan jasa pesan-antar makanan;\n- Terdapat fasilitas taman bermain umum yang selalu ramai di sore hari.\nBerdasarkan hasil analisis lingkungan eksternal tersebut, manakah peluang usaha yang paling potensial untuk dikembangkan di lokasi tersebut? (Pilihlah jawaban yang benar! Jawaban benar lebih dari satu) (Prediksi TKA 2026)", "opsi": [{"id": 1, "teks": "Membuka toko ATK (Alat Tulis Kantor) dan perlengkapan sekolah skala kecil."}, {"id": 2, "teks": "Membangun bengkel modifikasi motor klasik."}, {"id": 3, "teks": "Menyediakan jasa bimbingan belajar atau les privat untuk anak-anak SD."}, {"id": 4, "teks": "Menjual mainan edukatif dan aneka minuman dingin di sekitar area taman bermain."}, {"id": 5, "teks": "Membuka toko bahan bangunan dan material konstruksi."}], "jawaban_benar": [1, 3, 4], "penjelasan": "Pilihan 1 benar karena secara langsung menjawab kebutuhan yang teridentifikasi yaitu banyaknya anak usia sekolah dan belum adanya toko ATK di dalam kompleks; ini adalah peluang yang jelas. Pilihan 3 benar karena menargetkan segmen pasar utama (keluarga dengan anak SD); kebutuhan akan pendidikan tambahan selaras dengan demografi penghuni di lokasi tersebut. Pilihan 4 benar karena memanfaatkan potensi keramaian di taman bermain dan menjual mainan edukatif dan minuman dingin secara langsung menyasar anak dan orang tua yang berada di sana. Pilihan 2 dan 5 tidak relevan dengan data hasil observasi; tidak ada data yang menunjukkan adanya komunitas penggemar motor klasik ataupun aktivitas pembangunan yang masif di dalam kompleks, sehingga kedua peluang usaha tersebut memiliki tingkat ketidakpastian yang lebih tinggi dan kurang potensial dibandingkan pilihan lainnya."}, {"nomor": 11, "tipe": "pilihan_ganda", "teks_soal": "Dalam merencanakan kegiatan produksi kerajinan tangan berbahan dasar kayu, seorang wirausahawan harus mengikuti alur proses yang sistematis untuk memastikan efisiensi dan kualitas. Urutan tahapan proses produksi yang paling logis adalah .... (Prediksi TKA 2026)", "opsi": [{"label": "A", "teks": "pengemasan - pemotongan bahan - perakitan - penghalusan - pengecatan"}, {"label": "B", "teks": "pemotongan bahan - penghalusan - perakitan - pengecatan - pengemasan"}, {"label": "C", "teks": "perakitan - pengecatan - pemotongan bahan - penghalusan - pengemasan"}, {"label": "D", "teks": "pengecatan - pengemasan - penghalusan - perakitan - pemotongan bahan"}, {"label": "E", "teks": "penghalusan - pemotongan bahan - pengecatan - perakitan - pengemasan"}], "jawaban_benar": "B", "penjelasan": "Urutan proses yang efisien untuk membuat kerajinan kayu adalah sebagai berikut: Pemotongan Bahan (bahan baku kayu dipotong sesuai pola atau desain yang telah dibuat), Penghalusan (potongan-potongan bahan dihaluskan permukaannya untuk menghilangkan serat kayu yang tajam dan mempersiapkan untuk tahap selanjutnya), Perakitan (komponen-komponen yang sudah halus dirakit menjadi bentuk produk akhir), Pengecatan/Finishing (produk yang sudah dirakit kemudian dicat atau diberi lapisan pelindung untuk meningkatkan estetika dan daya tahan), Pengemasan (produk yang sudah jadi dan kering dikemas untuk didistribusikan). Pilihan B mengikuti alur proses ini secara sistematis, sementara pilihan lainnya menyajikan urutan yang tidak logis dan akan menghambat proses produksi."}, {"nomor": 12, "tipe": "pilihan_ganda", "teks_soal": "Seorang siswa SMK jurusan musik menciptakan sebuah lagu orisinal lengkap dengan lirik dan aransemennya untuk dijadikan jingle promosi sebuah produk minuman. Agar karya ciptaannya tersebut tidak digunakan atau diakui oleh pihak lain tanpa izin, jenis Hak atas Kekayaan Intelektual (HaKI) yang paling tepat untuk melindungi lagu tersebut adalah .... (TKA 2025)", "opsi": [{"label": "A", "teks": "merek dagang"}, {"label": "B", "teks": "hak paten"}, {"label": "C", "teks": "desain industri"}, {"label": "D", "teks": "rahasia dagang"}, {"label": "E", "teks": "hak cipta"}], "jawaban_benar": "E", "penjelasan": "Soal ini bertujuan mengukur kemampuan siswa dalam menerapkan prinsip HaKI pada konteks yang spesifik. Berdasarkan undang-undang, Hak Cipta adalah hak eksklusif yang diberikan kepada pencipta atas karya-karyanya di bidang ilmu pengetahuan, seni, dan sastra. Lagu, yang mencakup lirik dan aransemen musik, termasuk dalam kategori karya seni yang dilindungi oleh Hak Cipta secara otomatis sejak pertama kali diwujudkan dalam bentuk nyata. Pilihan lain tidak tepat karena: Merek Dagang untuk melindungi nama/logo produk; Hak Paten untuk invensi teknologi; Desain Industri untuk tampilan luar produk; dan Rahasia Dagang untuk informasi bisnis yang tidak diungkap ke publik."}, {"nomor": 13, "tipe": "tabel_pernyataan", "teks_soal": "Sebuah UMKM yang menjual produk sambal botolan ingin memperbarui desain kemasannya agar terlihat lebih premium dan dapat meningkatkan kepercayaan konsumen. Target pasar mereka adalah kalangan menengah yang peduli terhadap kualitas dan kebersihan produk.\nBerdasarkan tujuan tersebut, tentukan Tepat atau Tidak Tepat untuk setiap usulan perubahan desain kemasan berikut! (TKA 2025)", "kolom_status": ["Tepat", "Tidak Tepat"], "pernyataan": [{"no": 1, "teks": "Mengganti botol plastik biasa dengan botol kaca tebal yang dilengkapi segel pengaman pada tutupnya.", "status_benar": "Tepat"}, {"no": 2, "teks": "Menghilangkan informasi komposisi bahan pada label untuk membuat desain terlihat lebih minimalis dan bersih.", "status_benar": "Tidak Tepat"}, {"no": 3, "teks": "Mencantumkan logo \"Halal\" dan nomor izin PIRT (Pangan Industri Rumah Tangga) yang sudah dimiliki pada desain label baru.", "status_benar": "Tepat"}], "penjelasan": [{"no": 1, "teks": "Penggunaan botol kaca memberikan kesan premium, lebih higienis, dan lebih baik dalam menjaga kualitas produk dibandingkan plastik biasa. Adanya segel pengaman juga secara signifikan meningkatkan kepercayaan konsumen terhadap keamanan dan keaslian produk."}, {"no": 2, "teks": "Informasi komposisi adalah elemen wajib pada label produk makanan dan sangat penting bagi konsumen yang peduli terhadap apa yang mereka konsumsi, terutama target pasar menengah. Menghilangkannya justru akan menurunkan kepercayaan dan melanggar peraturan pelabelan pangan."}, {"no": 3, "teks": "Logo Halal dan nomor PIRT adalah bentuk legalitas dan jaminan mutu yang sangat dihargai oleh konsumen Indonesia. Mencantumkan keduanya pada label secara langsung akan meningkatkan kredibilitas produk dan kepercayaan konsumen, sejalan dengan tujuan untuk meraih target pasar yang peduli kualitas."}]}, {"nomor": 14, "tipe": "tabel_pernyataan", "teks_soal": "Seorang manajer usaha meninjau laporan keuangan bulanan. Ia bingung karena laporan laba rugi menunjukkan keuntungan (laba) yang tinggi, namun saat ia memeriksa saldo kas di rekening bank, jumlahnya justru berkurang drastis (arus kas negatif).\nBerdasarkan situasi tersebut, tentukan Logis atau Tidak Logis untuk setiap analisis penyebab kondisi keuangan tersebut! (Prediksi TKA 2026)", "kolom_status": ["Logis", "Tidak Logis"], "pernyataan": [{"no": 1, "teks": "Kondisi ini pasti disebabkan oleh kesalahan pencatatan akuntansi karena laba yang tinggi harusnya menghasilkan kas yang melimpah.", "status_benar": "Tidak Logis"}, {"no": 2, "teks": "Sebagian besar penjualan pada bulan tersebut dilakukan secara kredit (piutang) dan belum dibayar oleh pelanggan.", "status_benar": "Logis"}, {"no": 3, "teks": "Penyebab lainnya bisa jadi karena usaha tersebut melakukan pembayaran utang usaha dalam jumlah besar kepada pemasok pada bulan tersebut.", "status_benar": "Logis"}], "penjelasan": [{"no": 1, "teks": "Laba (akuntansi akrual) dan kas (aliran tunai) adalah dua konsep yang berbeda. Sangat mungkin sebuah perusahaan membukukan laba tinggi tetapi mengalami krisis kas. Ini bukan berarti ada kesalahan pencatatan, melainkan menunjukkan adanya aktivitas non-penjualan yang memengaruhi kas."}, {"no": 2, "teks": "Laporan laba rugi dengan basis akrual akan mencatat penjualan sebagai pendapatan meskipun uangnya belum diterima. Jika banyak penjualan dilakukan secara kredit, maka pendapatan tercatat tinggi (menghasilkan laba), tetapi kas belum masuk ke perusahaan. Ini adalah penyebab umum perbedaan antara laba dan arus kas."}, {"no": 3, "teks": "Pembayaran utang kepada pemasok adalah aktivitas pengeluaran kas (arus kas keluar dari operasional). Aktivitas ini tidak muncul di laporan laba rugi (karena transaksi yang menimbulkan utang sudah dicatat sebelumnya), tetapi secara langsung mengurangi saldo kas perusahaan. Ini juga merupakan penyebab umum arus kas negatif meskipun perusahaan profitabel."}]}, {"nomor": 15, "tipe": "multi_select", "teks_soal": "Sebuah kelompok siswa SMK berencana memproduksi dan menjual totebag kanvas dengan desain sablon kustom. Untuk menyusun rencana produksi dan menghitung biaya produksi per unit secara akurat, mereka perlu mempertimbangkan berbagai komponen biaya.\nBerdasarkan situasi tersebut, manakah komponen biaya yang harus dimasukkan dalam perhitungan Harga Pokok Produksi (HPP) totebag tersebut? (Pilihlah jawaban yang benar! Jawaban benar lebih dari satu) (Prediksi TKA 2026)", "opsi": [{"id": 1, "teks": "Biaya pembelian totebag kanvas polos."}, {"id": 2, "teks": "Biaya riset pasar untuk menentukan desain yang disukai konsumen."}, {"id": 3, "teks": "Biaya tinta sablon dan jasa cetak desain."}, {"id": 4, "teks": "Biaya penyusutan (depresiasi) peralatan sablon yang digunakan."}, {"id": 5, "teks": "Biaya pengemasan produk (plastik dan label merek)."}], "jawaban_benar": [1, 3, 4, 5], "penjelasan": "HPP mencakup semua biaya yang terkait langsung maupun tidak langsung dengan proses pembuatan suatu produk hingga siap dijual. Pilihan 1 benar karena totebag polos adalah bahan baku utama dari komponen utama dari biaya variabel. Pilihan 3 benar karena tinta dan jasa cetak adalah biaya bahan pendukung dan proses produksi yang dikeluarkan untuk setiap unit (biaya variabel). Pilihan 4 benar karena biaya penyusutan peralatan (seperti mesin sablon) adalah komponen biaya produksi tidak langsung yang harus dialokasikan ke setiap unit produk. Pilihan 5 benar karena kemasan dan label adalah bagian dari proses akhir produksi sebelum siap jual, sehingga termasuk dalam HPP. Pilihan 2 (biaya riset pasar) diklasifikasikan sebagai biaya pemasaran atau biaya umum & administrasi, bukan sebagai bagian dari Harga Pokok Produksi."}, {"nomor": 16, "tipe": "pilihan_ganda", "konteks_bersama_id": "eco_planner_16_20", "teks_soal": "Berdasarkan masalah adanya toko lain yang menggunakan nama serupa dengan \"Eco-Planner\", langkah perlindungan Hak atas Kekayaan Intelektual (HaKI) yang paling tepat untuk melindungi identitas merek mereka di masa depan adalah .... (TKA 2025)", "opsi": [{"label": "A", "teks": "mengajukan hak paten untuk keseluruhan desain planner"}, {"label": "B", "teks": "menciptakan nama dan logo baru yang unik, lalu mendaftarkannya sebagai Merek Dagang"}, {"label": "C", "teks": "mendaftarkan hak cipta untuk nama \"Eco-Planner\" agar tidak dapat digunakan pihak lain"}, {"label": "D", "teks": "mengajukan izin PIRT (Pangan Industri Rumah Tangga) untuk produk planner"}, {"label": "E", "teks": "mengganti pemasok kertas daur ulang dengan yang lebih eksklusif"}], "jawaban_benar": "B", "penjelasan": "Soal ini mengukur pemahaman siswa mengenai konsep dasar analisis peluang usaha dan HaKI. Nama merek yang bersifat umum dan digunakan pihak lain tidak dapat dilindungi Hak Cipta maupun jenis HaKI lainnya secara efektif untuk fungsi sebagai identitas komersial. Solusi paling tepat adalah menciptakan nama dan logo yang unik dan khas, kemudian mendaftarkannya sebagai Merek Dagang, sehingga mendapatkan perlindungan hukum eksklusif dan mencegah kebingungan di pasar."}, {"nomor": 17, "tipe": "pilihan_ganda", "konteks_bersama_id": "eco_planner_16_20", "teks_soal": "Dalam stimulus, kelompok \"Eco-Planner\" menjual produknya melalui partisipasi dalam bazar dan acara sekolah, di mana mereka bertemu dan bertransaksi langsung dengan konsumen. Saluran distribusi yang digunakan dalam kegiatan tersebut tergolong sebagai .... (TKA 2025)", "opsi": [{"label": "A", "teks": "distribusi tidak langsung"}, {"label": "B", "teks": "distribusi intensif"}, {"label": "C", "teks": "distribusi eksklusif"}, {"label": "D", "teks": "distribusi langsung"}, {"label": "E", "teks": "distribusi selektif"}], "jawaban_benar": "D", "penjelasan": "Soal ini mengukur pemahaman konsep dasar mengenai saluran distribusi. Saluran distribusi langsung adalah jenis saluran di mana produsen menjual dan menyalurkan produknya secara langsung kepada konsumen akhir tanpa ada pihak perantara sama sekali. Dalam kasus ini, kelompok \"Eco-Planner\" bertemu dan bertransaksi langsung dengan konsumen di bazar/acara sekolah. Distribusi intensif, selektif, dan eksklusif adalah bentuk-bentuk saluran distribusi tidak langsung yang berkaitan dengan jumlah perantara yang digunakan."}, {"nomor": 18, "tipe": "tabel_pernyataan", "konteks_bersama_id": "eco_planner_16_20", "teks_soal": "Kelompok \"Eco-Planner\" ingin menekan biaya produksi yang tinggi agar harga jualnya lebih kompetitif, namun mereka tidak ingin mengorbankan nilai \"ramah lingkungan\" yang menjadi keunggulan utama produknya.\nBerdasarkan tujuan tersebut, tentukan Logis atau Tidak Logis untuk setiap solusi yang dipertimbangkan berikut! (TKA 2025)", "kolom_status": ["Logis", "Tidak Logis"], "pernyataan": [{"no": 1, "teks": "Mengganti bahan sampul karton daur ulang dengan sampul plastik murah yang tidak ramah lingkungan.", "status_benar": "Tidak Logis"}, {"no": 2, "teks": "Mencari beberapa pemasok kertas daur ulang alternatif untuk membandingkan harga dan kualitas.", "status_benar": "Logis"}, {"no": 3, "teks": "Melakukan negosiasi harga dengan percetakan lokal untuk mendapatkan diskon dengan komitmen pemesanan dalam jumlah lebih besar.", "status_benar": "Logis"}], "penjelasan": [{"no": 1, "teks": "Mengganti bahan ramah lingkungan dengan plastik murah justru akan menghilangkan nilai jual utama produk (\"ramah lingkungan\"). Ini bertentangan langsung dengan tujuan yang ingin dicapai."}, {"no": 2, "teks": "Mencari pemasok alternatif untuk membandingkan harga dan kualitas adalah langkah yang wajar dan logis dalam upaya efisiensi biaya tanpa mengorbankan nilai ramah lingkungan produk."}, {"no": 3, "teks": "Negosiasi harga dengan komitmen volume pemesanan yang lebih besar adalah strategi umum dan logis untuk menekan biaya produksi per unit tanpa mengubah kualitas atau bahan baku produk."}]}, {"nomor": 19, "tipe": "tabel_pernyataan", "konteks_bersama_id": "eco_planner_16_20", "teks_soal": "Menanggapi masukan pelanggan bahwa desain sampul planner \"terlalu polos\", tim \"Eco-Planner\" merencanakan beberapa tindakan untuk pengembangan desain produk mereka.\nBerdasarkan situasi tersebut, tentukan Tepat atau Tidak Tepat untuk setiap tindakan pengembangan desain berikut! (TKA 2025)", "kolom_status": ["Tepat", "Tidak Tepat"], "pernyataan": [{"no": 1, "teks": "Langsung mencetak 500 planner dengan desain sampul baru yang ramai dan berwarna-warni tanpa pengujian.", "status_benar": "Tidak Tepat"}, {"no": 2, "teks": "Membuat beberapa alternatif desain sampul baru, lalu melakukan jajak pendapat (polling) di Instagram untuk melihat preferensi pengikut mereka.", "status_benar": "Tepat"}, {"no": 3, "teks": "Menawarkan opsi personalisasi atau custom nama pada sampul planner dengan sedikit biaya tambahan.", "status_benar": "Tepat"}], "penjelasan": [{"no": 1, "teks": "Mencetak dalam jumlah besar tanpa pengujian terlebih dahulu adalah tindakan yang sangat berisiko. Jika desain baru tidak disukai pasar, mereka akan mengalami kerugian besar berupa produk yang tidak laku."}, {"no": 2, "teks": "Melakukan jajak pendapat sebelum produksi massal adalah cara yang tepat dan berisiko rendah untuk memvalidasi selera pasar terlebih dahulu, sehingga desain akhir yang dipilih memiliki peluang lebih besar untuk disukai."}, {"no": 3, "teks": "Opsi personalisasi adalah cara yang tepat untuk menambah nilai jual produk dan memenuhi keinginan konsumen akan produk yang lebih personal, sekaligus berpotensi meningkatkan harga jual."}]}, {"nomor": 20, "tipe": "multi_select", "konteks_bersama_id": "eco_planner_16_20", "teks_soal": "Melihat penjualan yang stagnan, masalah pada nama merek, dan masukan dari pelanggan, kelompok \"Eco-Planner\" perlu menyusun strategi komprehensif untuk mengembangkan usahanya.\nBerdasarkan situasi pada stimulus secara keseluruhan, manakah strategi-strategi yang paling relevan dan potensial untuk diterapkan? (Pilihlah jawaban yang benar! Jawaban benar lebih dari satu) (TKA 2025)", "opsi": [{"id": 1, "teks": "Menurunkan harga jual planner secara drastis di bawah biaya produksi untuk mengalahkan pesaing."}, {"id": 2, "teks": "Menguatkan narasi merek (brand storytelling) di media sosial, dengan menceritakan proses produksi ramah lingkungan dan kerja sama dengan percetakan lokal."}, {"id": 3, "teks": "Mengembangkan variasi desain sampul berdasarkan masukan pelanggan, misalnya meluncurkan \"seri edisi terbatas\" hasil kolaborasi dengan ilustrator muda."}, {"id": 4, "teks": "Menciptakan nama merek baru yang lebih unik dan khas, lalu secara konsisten menggunakannya di semua saluran penjualan dan komunikasi."}, {"id": 5, "teks": "Menghentikan penjualan di bazar karena dianggap kurang menguntungkan dan hanya fokus penjualan melalui situs web."}], "jawaban_benar": [2, 3, 4], "penjelasan": "Pilihan 2 benar karena strategi storytelling dapat mengedukasi pasar tentang nilai produk, membenarkan harga yang lebih tinggi, dan membangun koneksi emosional dengan target pasar yang peduli lingkungan. Pilihan 3 benar karena ini secara langsung mengatasi masukan pelanggan tentang desain yang polos, dan dapat menciptakan kebaruan serta meningkatkan nilai jual produk. Pilihan 4 benar karena menciptakan identitas merek yang kuat dan unik adalah fondasi penting untuk pemasaran jangka panjang dan untuk membedakan diri dari pesaing, sekaligus menyelesaikan masalah kebingungan nama. Pilihan 1 adalah strategi yang tidak berkelanjutan dan akan menyebabkan kerugian finansial. Pilihan 5 tidak tepat karena bazar merupakan saluran baik untuk interaksi langsung dengan pelanggan, mendapatkan umpan balik, dan membangun brand awareness, yang mana semuanya penting bagi usaha rintisan."}, {"nomor": 21, "tipe": "pilihan_ganda", "konteks_bersama_id": "lokal_maju_21_25", "teks_soal": "Untuk mengatasi kesulitan dalam meyakinkan calon klien yang skeptis, tim \"Lokal Maju\" perlu memperkuat proposal usaha mereka. Bagian dari proposal yang seharusnya menjelaskan secara spesifik tentang manfaat yang akan diterima klien dan bagaimana jasa pengelolaan media sosial dapat membantu menyelesaikan masalah bisnis klien adalah .... (Prediksi TKA 2026)", "opsi": [{"label": "A", "teks": "struktur organisasi tim"}, {"label": "B", "teks": "lampiran portofolio"}, {"label": "C", "teks": "analisis pasar dan pesaing"}, {"label": "D", "teks": "latar belakang pendirian usaha"}, {"label": "E", "teks": "proposisi nilai (value proposition)"}], "jawaban_benar": "E", "penjelasan": "Soal ini mengukur kemampuan siswa untuk mengidentifikasi komponen proposal usaha. Proposisi nilai (value proposition) adalah bagian sentral dari sebuah proposal yang secara ringkas dan kuat menjelaskan mengapa seorang pelanggan harus memilih produk atau jasa tersebut. Bagian ini berfokus pada manfaat, solusi atas masalah pelanggan, dan apa yang membuat penawaran tersebut unik. Dalam kasus ini, proposisi nilai harus menjelaskan bagaimana pengelolaan media sosial dapat meningkatkan visibilitas merek, membangun loyalitas pelanggan, dan pada akhirnya berkontribusi pada pertumbuhan bisnis, sehingga dapat meyakinkan klien yang skeptis."}, {"nomor": 22, "tipe": "pilihan_ganda", "konteks_bersama_id": "lokal_maju_21_25", "teks_soal": "Dalam menjalankan usahanya, tim \"Lokal Maju\" mengeluarkan biaya rutin setiap bulan untuk menunjang kegiatan operasional mereka. Berdasarkan informasi pada stimulus, yang termasuk dalam biaya operasional langsung dari jasa yang mereka tawarkan adalah .... (Prediksi TKA 2026)", "opsi": [{"label": "A", "teks": "biaya pembelian laptop dan ponsel baru"}, {"label": "B", "teks": "biaya transportasi tim untuk bertemu klien"}, {"label": "C", "teks": "biaya sewa kantor dan tagihan listrik"}, {"label": "D", "teks": "biaya langganan aplikasi desain grafis"}, {"label": "E", "teks": "biaya pembuatan logo agensi \"Lokal Maju\""}], "jawaban_benar": "D", "penjelasan": "Soal ini bertujuan untuk mengukur pemahaman siswa dalam mengidentifikasi komponen biaya operasional langsung dari sebuah usaha jasa. Biaya operasional langsung adalah biaya yang secara rutin dikeluarkan dan berhubungan langsung dengan proses penyediaan jasa. Stimulus secara eksplisit menyebutkan bahwa aset mereka termasuk \"langganan bulanan sebuah aplikasi desain grafis profesional\". Biaya ini bersifat rutin (bulanan) dan esensial untuk pembuatan konten, yang merupakan inti dari jasa mereka. Pilihan lain seperti pembelian aset (laptop), biaya tidak rutin (pembuatan logo), atau biaya yang tidak disebutkan dalam stimulus (transportasi, sewa kantor) tidak termasuk dalam definisi biaya operasional langsung berdasarkan konteks yang diberikan."}, {"nomor": 23, "tipe": "tabel_pernyataan", "konteks_bersama_id": "lokal_maju_21_25", "teks_soal": "Andi dan Bima tidak memiliki modal untuk memproduksi merchandise yang diminta oleh para penggemar. Untuk mempertimbangkan beberapa model bisnis untuk memulai usaha merchandise mereka.\nTentukan Logis atau Tidak Logis untuk setiap model bisnis yang dipertimbangkan berikut! (Prediksi TKA 2026)", "kolom_status": ["Logis", "Tidak Logis"], "pernyataan": [{"no": 1, "teks": "Segera mengambil pinjaman dalam jumlah besar untuk membeli ribuan kaos dan menyewa ruko sebagai toko fisik.", "status_benar": "Tidak Logis"}, {"no": 2, "teks": "Menjalankan sistem pre-order (PO), di mana produk hanya akan diproduksi setelah pesanan dan pembayaran terkumpul dari sejumlah pembeli.", "status_benar": "Logis"}, {"no": 3, "teks": "Bekerja sama dengan platform print-on-demand, di mana pihak ketiga yang akan memproduksi merchandise dan mengirimkan merchandise setiap kali ada pesanan masuk.", "status_benar": "Logis"}], "penjelasan": [{"no": 1, "teks": "Model bisnis ini membutuhkan modal awal yang sangat besar (produksi massal, sewa tempat) dan memiliki risiko finansial yang sangat tinggi, terutama bagi pemula. Ada risiko besar produk tidak laku dan modal tidak kembali."}, {"no": 2, "teks": "Sistem pre-order adalah model bisnis rendah risiko yang sangat cocok untuk pemula. Modal produksi didapatkan langsung dari pelanggan, sehingga tidak ada risiko kerugian akibat barang yang tidak terjual."}, {"no": 3, "teks": "Model print-on-demand (POD) adalah solusi modern yang menghilangkan kebutuhan modal awal untuk produksi dan penyimpanan barang. Ini memungkinkan mereka untuk fokus pada desain dan pemasaran, sementara produksi dan logistik ditangani oleh mitra, sehingga sangat sesuai dengan kondisi mereka."}], "catatan": "Catatan: Konteks soal ini pada gambar sumber tercampur dengan narasi kasus 'Andi dan Bima' (webcomic Kisah Komet) yang seharusnya berada di Prediksi 2. Kemungkinan ada kesalahan cetak/susunan pada dokumen sumber, atau soal 23 Prediksi 1 memang menggunakan tokoh yang sama secara kebetulan. Mohon verifikasi ke sumber asli."}, {"nomor": 24, "tipe": "tabel_pernyataan", "konteks_bersama_id": "lokal_maju_21_25", "teks_soal": "Untuk mengatasi kesulitan mendapatkan klien baru yang skeptis, tim \"Lokal Maju\" perlu merancang strategi pemasaran yang lebih meyakinkan untuk jasa mereka sendiri.\nTentukan Efektif atau Tidak Efektif untuk setiap strategi pemasaran yang dipertimbangkan berikut! (Prediksi TKA 2026)", "kolom_status": ["Efektif", "Tidak Efektif"], "pernyataan": [{"no": 1, "teks": "Membuat sebuah portofolio digital yang menampilkan contoh konten terbaik dan data pertumbuhan media sosial dari klien-klien sebelumnya.", "status_benar": "Efektif"}, {"no": 2, "teks": "Menawarkan paket \"Uji Coba Gratis 1 Minggu\" kepada calon klien agar mereka dapat merasakan langsung kualitas layanan sebelum berkomitmen.", "status_benar": "Efektif"}, {"no": 3, "teks": "Menurunkan harga paket jasa menjadi Rp100.000 per bulan untuk menarik sebanyak mungkin klien tanpa mempertimbangkan biaya operasional.", "status_benar": "Tidak Efektif"}], "penjelasan": [{"no": 1, "teks": "Portofolio adalah bukti nyata dari kemampuan dan hasil kerja. Menunjukkan hasil konkret (studi kasus) adalah cara paling kuat untuk membangun kepercayaan dan mengatasi keraguan dari calon klien."}, {"no": 2, "teks": "Menawarkan uji coba gratis dapat menghilangkan hambatan psikologis dan finansial bagi klien yang ragu. Ini menunjukkan kepercayaan diri penyedia jasa pada kualitas layanannya dan memberikan kesempatan untuk membuktikan nilai secara langsung."}, {"no": 3, "teks": "Menurunkan harga secara drastis di bawah biaya operasional adalah strategi yang tidak berkelanjutan dan akan menyebabkan kerugian. Selain itu, harga yang terlalu murah dapat menimbulkan persepsi kualitas yang rendah di mata calon klien."}]}, {"nomor": 25, "tipe": "multi_select", "konteks_bersama_id": "lokal_maju_21_25", "teks_soal": "Untuk menjawab keluhan klien (seperti toko roti) dan meningkatkan nilai jual jasa mereka, tim \"Lokal Maju\" perlu melakukan inovasi dan perbaikan pada paket layanan yang mereka tawarkan.\nBerdasarkan keseluruhan tantangan yang dihadapi, manakah langkah-langkah perbaikan layanan yang paling strategis untuk dilakukan? (Pilihlah jawaban yang benar! Jawaban benar lebih dari satu) (Prediksi TKA 2026)", "opsi": [{"id": 1, "teks": "Menambahkan layanan pembuatan program promosi online (misalnya, kuis atau giveaway) yang bertujuan untuk meningkatkan penjualan secara langsung."}, {"id": 2, "teks": "Menjamin kepada setiap klien bahwa penjualan mereka pasti akan naik dua kali lipat dalam sebulan."}, {"id": 3, "teks": "Membuat laporan kemajuan bulanan yang ringkas dan visual untuk dikirimkan kepada setiap klien."}, {"id": 4, "teks": "Mengadakan sesi konsultasi strategi di awal setiap bulan dengan klien untuk menyelaraskan tema konten dengan tujuan bisnis klien."}, {"id": 5, "teks": "Mengurangi frekuensi unggahan menjadi seminggu sekali untuk semua klien demi menghemat waktu kerja tim."}], "jawaban_benar": [1, 3, 4], "penjelasan": "Pilihan 1 benar karena ini secara langsung menghubungkan aktivitas media sosial dengan tujuan penjualan klien. Program promosi seperti ini adalah cara konkret untuk menunjukkan ROI (laba atas investasi) dari jasa yang mereka tawarkan. Pilihan 3 benar karena laporan rutin menunjukkan transparansi, profesionalisme, dan membantu klien memahami nilai yang mereka dapatkan dari layanan tersebut, meskipun tidak selalu dalam bentuk penjualan langsung. Pilihan 4 benar karena menciptakan hubungan kerja sama yang lebih strategis (bukan sekadar transaksional) dan dapat membantu \"Lokal Maju\" memahami kebutuhan bisnis klien secara lebih mendalam, sehingga kualitas konten meningkat. Pilihan 2 tidak tepat karena menjanjikan hasil pasti (garansi penjualan) adalah praktik pemasaran yang tidak etis dan berisiko tinggi, karena penjualan dipengaruhi banyak faktor eksternal. Pilihan 5 tidak tepat karena mengurangi frekuensi unggahan justru akan menurunkan engagement dan visibilitas klien, bertentangan dengan tujuan utama jasa yang ditawarkan."}, {"nomor": 26, "tipe": "pilihan_ganda", "konteks_bersama_id": "dauran_denim_26_30", "teks_soal": "Model produksi yang menjadi inti dari usaha \"Dauran Denim\", yaitu proses mengubah bahan atau produk bekas menjadi sebuah produk baru dengan kualitas dan nilai yang lebih tinggi dari aslinya, merupakan penerapan dari konsep .... (Prediksi TKA 2026)", "opsi": [{"label": "A", "teks": "daur ulang (recycling)"}, {"label": "B", "teks": "produksi massal (mass production)"}, {"label": "C", "teks": "upcycling"}, {"label": "D", "teks": "kustomisasi (customization)"}, {"label": "E", "teks": "manufaktur"}], "jawaban_benar": "C", "penjelasan": "Soal ini mengukur pemahaman siswa terhadap konsep-konsep produksi berkelanjutan. Upcycling (daur naik) secara spesifik merujuk pada proses transformasi limbah atau bahan bekas menjadi produk baru yang memiliki nilai atau kualitas lebih tinggi. Hal ini berbeda dengan recycling (daur ulang) yang umumnya menghancurkan bahan bekas menjadi bahan mentah kembali untuk dibuat menjadi produk baru (seringkali dengan kualitas yang sama atau lebih rendah). Apa yang dilakukan \"Dauran Denim\" dengan mengubah celana jin bekas (nilai rendah) menjadi tas fesyen (nilai tinggi) adalah contoh sempurna dari upcycling."}, {"nomor": 27, "tipe": "pilihan_ganda", "konteks_bersama_id": "dauran_denim_26_30", "teks_soal": "Fakta bahwa tim \"Dauran Denim\" terpaksa menolak pesanan dalam jumlah besar dari concept store karena keterbatasan kapasitas produksi menunjukkan adanya masalah fundamental pada aspek .... (Prediksi TKA 2026)", "opsi": [{"label": "A", "teks": "skalabilitas usaha"}, {"label": "B", "teks": "strategi penetapan harga"}, {"label": "C", "teks": "kualitas bahan baku"}, {"label": "D", "teks": "desain kemasan"}, {"label": "E", "teks": "segmentasi pasar"}], "jawaban_benar": "A", "penjelasan": "Soal ini bertujuan untuk mengukur kemampuan siswa dalam mengidentifikasi masalah dalam pengelolaan usaha. Skalabilitas adalah kemampuan sebuah bisnis atau sistem untuk tumbuh dan menangani peningkatan permintaan. Ketidakmampuan \"Dauran Denim\" untuk memenuhi pesanan yang lebih besar dari biasanya karena keterbatasan sumber daya (waktu dan tenaga kerja) adalah masalah skalabilitas. Artinya, model operasi mereka saat ini belum siap untuk berkembang atau \"naik skala\". Ini adalah tantangan umum bagi usaha rintisan yang mulai tumbuh."}, {"nomor": 28, "tipe": "tabel_pernyataan", "konteks_bersama_id": "dauran_denim_26_30", "teks_soal": "Tim \"Dauran Denim\" merasa kesulitan dalam proses penjualan daring karena setiap produknya unik dan membutuhkan proses foto serta unggah tersendiri. Mereka pun mengevaluasi beberapa pendekatan untuk mengatasi masalah ini.\nTentukan Logis atau Tidak Logis untuk setiap pendekatan penjualan daring yang mereka pertimbangkan! (Prediksi TKA 2026)", "kolom_status": ["Logis", "Tidak Logis"], "pernyataan": [{"no": 1, "teks": "Mengelompokkan produk berdasarkan model (misal: \"Tote Bag Klasik\"), lalu memotret satu contoh dan memberi catatan \"setiap produk unik dan corak dapat bervariasi\".", "status_benar": "Logis"}, {"no": 2, "teks": "Menghentikan rencana penjualan daring dan hanya fokus berjualan di bazar karena prosesnya lebih sederhana.", "status_benar": "Tidak Logis"}, {"no": 3, "teks": "Menjual produk dalam format \"rilis terbatas\" (limited drop), di mana sejumlah produk unik diunggah serentak pada waktu yang telah diumumkan untuk menciptakan antusiasme.", "status_benar": "Logis"}], "penjelasan": [{"no": 1, "teks": "Ini adalah strategi yang efisien dan umum digunakan oleh penjual produk kerajinan tangan. Hal ini menyeimbangkan antara kebutuhan efisiensi operasional (tidak memotret ratusan produk) dengan tetap mengkomunikasikan keunikan produk."}, {"no": 2, "teks": "Menghindari tantangan dengan cara membatasi potensi pertumbuhan adalah strategi yang buruk. Penjualan daring adalah peluang besar untuk menjangkau pasar yang lebih luas, sehingga solusinya adalah mencari cara mengatasi kendala, bukan meninggalkan peluangnya."}, {"no": 3, "teks": "Model 'rilis terbatas' atau limited drop sangat cocok untuk produk unik. Strategi ini mengubah tantangan (keunikan produk) menjadi keunggulan (eksklusivitas). Ini dapat meningkatkan permintaan dan menyederhanakan proses pemasaran karena dilakukan secara periodik dan terfokus."}]}, {"nomor": 29, "tipe": "tabel_pernyataan", "konteks_bersama_id": "dauran_denim_26_30", "teks_soal": "Untuk membangun identitas merek yang kuat, tim \"Dauran Denim\" menyadari pentingnya melindungi aset tak berwujud mereka.\nTentukan apakah setiap tindakan berikut merupakan langkah yang Penting atau Kurang Penting dalam membangun dan melindungi identitas merek mereka! (Prediksi TKA 2026)", "kolom_status": ["Penting", "Kurang Penting"], "pernyataan": [{"no": 1, "teks": "Mendaftarkan logo dan nama \"Dauran Denim\" (atau nama baru) sebagai Merek Dagang.", "status_benar": "Penting"}, {"no": 2, "teks": "Mengganti desain logo setiap kali meluncurkan produk baru agar tidak membosankan.", "status_benar": "Kurang Penting"}, {"no": 3, "teks": "Secara konsisten menerapkan emblem kulit dengan logo pada setiap produk.", "status_benar": "Penting"}], "penjelasan": [{"no": 1, "teks": "Pendaftaran Merek Dagang memberikan perlindungan hukum eksklusif atas nama dan logo, mencegah pihak lain menggunakan identitas serupa yang dapat membingungkan konsumen. Ini adalah langkah fundamental dalam melindungi aset merek."}, {"no": 2, "teks": "Mengganti logo terlalu sering justru akan membingungkan konsumen dan menghancurkan upaya membangun pengenalan merek (brand recognition). Konsistensi adalah kunci dalam branding, sehingga tindakan ini sangat tidak disarankan."}, {"no": 3, "teks": "Emblem kulit dengan logo berfungsi sebagai brand identifier yang konsisten. Penggunaannya pada setiap produk membantu membangun citra merek yang kuat, menunjukkan keaslian, dan membedakan produk \"Dauran Denim\" dari produk lain."}]}, {"nomor": 30, "tipe": "multi_select", "konteks_bersama_id": "dauran_denim_26_30", "teks_soal": "Berdasarkan tantangan skalabilitas produksi dan penjualan daring yang dihadapi, tim \"Dauran Denim\" perlu menerapkan beberapa strategi yang paling strategis dan selaras dengan model bisnis upcycling mereka.\nManakah di antara strategi-strategi berikut yang paling strategis dan selaras dengan model bisnis upcycling mereka? (Pilihlah jawaban yang benar! Jawaban benar lebih dari satu) (Prediksi TKA 2026)", "opsi": [{"id": 1, "teks": "Membangun narasi (storytelling) yang kuat di media sosial tentang asal-usul bahan baku dan proses transformasi menjadi produk baru."}, {"id": 2, "teks": "Menyusun proposal untuk menjalin kemitraan dengan penjahit lokal atau ibu rumah tangga di sekitar sekolah untuk meningkatkan kapasitas produksi."}, {"id": 3, "teks": "Mengganti bahan baku jin bekas dengan kain denim baru agar setiap produk yang dihasilkan 100% seragam."}, {"id": 4, "teks": "Mengembangkan sistem penjualan daring berdasarkan \"koleksi\" atau tema tertentu (misal: \"Koleksi Biru Laut\") untuk menyederhanakan proses pemasaran."}, {"id": 5, "teks": "Fokus pada penurunan harga jual serendah mungkin untuk bersaing dengan tas buatan pabrik."}], "jawaban_benar": [1, 2, 4], "penjelasan": "Pilihan 1 benar karena storytelling adalah cara paling efektif untuk mengkomunikasikan nilai upcycling, membenarkan keunikan setiap produk, dan membangun koneksi emosional dengan konsumen yang peduli isu keberlanjutan. Pilihan 2 benar karena ini adalah cara yang logis untuk meningkatkan skalabilitas produksi tanpa harus berinvestasi besar pada fasilitas sendiri. Kemitraan semacam ini juga dapat menciptakan dampak sosial tambahan. Pilihan 4 benar karena strategi penjualan berbasis koleksi dapat mengatasi masalah penjualan produk unik secara efisien; ini menyederhanakan proses fotografi dan pemasaran serta menciptakan momentum dan eksklusivitas. Pilihan 3 bertentangan langsung dengan konsep inti upcycling dan akan menghilangkan keunikan produk. Pilihan 5 juga tidak tepat karena bersaing harga dengan produk massal akan merendahkan nilai kerajinan tangan dan keunikan yang menjadi kekuatan utama mereka."}]}, "prediksi_2": {"judul": "PREDIKSI 2 - PRODUK/PROJEK KREATIF DAN KEWIRAUSAHAAN - TKA 2026/2027", "jumlah_soal": 30, "alokasi_waktu_menit": 60, "soal": [{"nomor": 1, "tipe": "pilihan_ganda", "teks_soal": "Sebuah kelompok wirausaha yang memproduksi minuman energi kemasan ingin memasarkannya secara efektif. Agar strategi pemasaran lebih tepat sasaran, perusahaan membagi pasar yang luas menjadi kelompok-kelompok yang lebih kecil berdasarkan karakteristik yang sama, seperti usia, gaya hidup, dan tingkat pendapatan. Kegiatan yang dilakukan perusahaan tersebut dinamakan .... (Prediksi TKA 2026)", "opsi": [{"label": "A", "teks": "promosi penjualan"}, {"label": "B", "teks": "segmentasi pasar"}, {"label": "C", "teks": "penetapan harga"}, {"label": "D", "teks": "distribusi produk"}, {"label": "E", "teks": "riset pasar"}], "jawaban_benar": "B", "penjelasan": "Soal ini mengukur pemahaman dasar siswa dalam pemasaran produk. Segmentasi pasar adalah proses membagi pasar heterogen (beragam) menjadi segmen-segmen yang lebih homogen (memiliki kesamaan). Tujuannya adalah agar perusahaan dapat merancang produk dan strategi pemasaran yang paling sesuai untuk setiap segmen sehingga lebih efisien dan efektif. Dalam soal, tindakan membagi konsumen berdasarkan usia, gaya hidup, dan pendapatan adalah bagian dari kegiatan segmentasi pasar. Pilihan lainnya merupakan elemen pemasaran yang berbeda: promosi adalah cara mengomunikasikan produk, penetapan harga adalah tentang nilai jual, distribusi adalah tentang penyaluran produk, dan riset pasar berfokus pada pengumpulan data secara umum."}, {"nomor": 2, "tipe": "pilihan_ganda", "teks_soal": "Sebuah kelompok siswa menyusun proposal usaha untuk jasa \"Cuci Sepatu Premium\". Dalam proposal tersebut, mereka perlu menjelaskan secara rinci bagaimana proses pelayanan akan berlangsung, mulai dari penerimaan sepatu dari pelanggan, proses pencucian dengan teknik khusus, hingga pengemasan dan penyerahan kembali kepada pelanggan. Penjelasan detail mengenai alur kerja seperti ini seharusnya ditempatkan pada bagian .... (TKA 2025)", "opsi": [{"label": "A", "teks": "rencana operasional"}, {"label": "B", "teks": "profil usaha"}, {"label": "C", "teks": "analisis pasar"}, {"label": "D", "teks": "struktur organisasi"}, {"label": "E", "teks": "lampiran"}], "jawaban_benar": "A", "penjelasan": "Soal ini bertujuan mengukur kemampuan siswa dalam mengaplikasikan pengetahuannya tentang komponen-komponen dalam sebuah proposal usaha. Bagian rencana operasional dalam proposal usaha berisi penjelasan teknis mengenai bagaimana jasa akan diberikan sehari-hari, mencakup alur proses/pelayanan, kebutuhan bahan baku, peralatan, dan prosedur kerja. Deskripsi alur kerja jasa cuci sepatu, seperti yang diuraikan dalam soal, merupakan inti dari rencana operasional. Profil usaha berisi informasi umum perusahaan, analisis pasar membahas target konsumen dan pesaing, struktur organisasi menjelaskan pembagian tugas tim, dan lampiran berisi dokumen pendukung."}, {"nomor": 3, "tipe": "tabel_pernyataan", "teks_soal": "Sebuah usaha rumahan ingin memastikan setiap produk donat yang dijual memiliki standar kualitas yang sama; berat 50 gram, bentuk bulat sempurna, dan isi rasa yang konsisten.\nBerdasarkan hal tersebut, tentukan Efektif atau Tidak Efektif untuk setiap tindakan pengendalian mutu berikut! (Prediksi TKA 2026)", "kolom_status": ["Efektif", "Tidak Efektif"], "pernyataan": [{"no": 1, "teks": "Menimbang setiap adonan donat sebelum digoreng untuk memastikan berat sesuai standar 50 gram.", "status_benar": "Efektif"}, {"no": 2, "teks": "Memberikan kebebasan penuh kepada setiap karyawan untuk menentukan jumlah isian selai berdasarkan perkiraan masing-masing.", "status_benar": "Tidak Efektif"}, {"no": 3, "teks": "Menggunakan cetakan bulat berukuran seragam untuk semua adonan sebelum digoreng.", "status_benar": "Efektif"}], "penjelasan": [{"no": 1, "teks": "Menimbang adonan adalah tindakan kuantitatif yang paling akurat untuk memastikan konsistensi berat produk. Ini adalah contoh penerapan standar proses untuk menjaga mutu."}, {"no": 2, "teks": "Memberikan kebebasan tanpa standar akan menghasilkan produk yang tidak konsisten. Perkiraan setiap orang berbeda-beda sehingga isian akan bervariasi dan tidak sesuai dengan standar yang diinginkan. Seharusnya, digunakan takaran standar (misalnya, sendok takar atau pompa isian)."}, {"no": 3, "teks": "Menggunakan cetakan adalah cara yang sangat efektif untuk memastikan setiap produk memiliki bentuk dan ukuran yang seragam (bulat sempurna). Ini menghilangkan variasi yang mungkin terjadi jika bentuk dibuat secara manual oleh tangan yang berbeda."}]}, {"nomor": 4, "tipe": "tabel_pernyataan", "teks_soal": "Berdasarkan hasil analisis SWOT untuk ide bisnis kedai kopi kekinian bernama \"Kopi Senja\", tentukan Tepat atau Tidak Tepat untuk setiap strategi yang diusulkan! (TKA 2025)", "kolom_status": ["Tepat", "Tidak Tepat"], "pernyataan": [{"no": 1, "teks": "Mengabaikan keberadaan pesaing karena sudah memiliki resep yang unik sebagai kekuatan utama.", "status_benar": "Tidak Tepat"}, {"no": 2, "teks": "Menjadikan \"resep unik\" dan \"gaya hidup sehat\" sebagai tema utama dalam konten promosi di media sosial.", "status_benar": "Tepat"}, {"no": 3, "teks": "Menjalin kerja sama dengan influencer kebugaran untuk mengatasi kelemahan dalam pemasaran.", "status_benar": "Tepat"}], "penjelasan": [{"no": 1, "teks": "Ancaman (Threat) dari pesaing tidak boleh diabaikan. Meskipun memiliki kekuatan, persaingan yang ketat tetap berisiko menggerus pangsa pasar. Strategi yang baik harus mempertimbangkan cara menghadapi ancaman, bukan mengabaikannya."}, {"no": 2, "teks": "Strategi ini secara cerdas menggabungkan Kekuatan (Strength) internal, yaitu resep unik, dengan Peluang (Opportunity) eksternal, yaitu tren hidup sehat. Ini adalah contoh strategi S-O (Strength-Opportunity) yang sangat potensial untuk menarik target pasar."}, {"no": 3, "teks": "Strategi ini bertujuan untuk mengatasi Kelemahan (Weakness) internal, yaitu kurangnya pengalaman pemasaran, dengan memanfaatkan Peluang (Opportunity) eksternal, yaitu tren influencer marketing. Ini adalah contoh strategi W-O (Weakness-Opportunity) yang efektif untuk menutupi kekurangan internal."}]}, {"nomor": 5, "tipe": "multi_select", "teks_soal": "Sebuah UMKM menjual produk skincare organik dengan positioning \"alami\" dan \"peduli lingkungan\", menargetkan konsumen yang peduli kesehatan.\nSoal ini mengukur kemampuan penalaran siswa untuk menentukan berbagai elemen kemasan yang efektif sesuai dengan positioning produk dan target pasar. (Prediksi TKA 2026)", "opsi": [{"id": 1, "teks": "Visualisasi bahan baku segar secara langsung mengkomunikasikan nilai \"alami\" dan \"organik\" kepada konsumen."}, {"id": 2, "teks": "Menggunakan kemasan semewah mungkin dengan bahan logam dan plastik tebal untuk kesan premium."}, {"id": 3, "teks": "Penggunaan kemasan ramah lingkungan sejalan dengan nilai \"peduli kesehatan\" dan \"peduli lingkungan\"."}, {"id": 4, "teks": "Menampilkan kandungan nutrisi dan komposisi produk secara transparan untuk membangun kepercayaan."}, {"id": 5, "teks": "Mencantumkan logo sertifikasi organik dari pihak ketiga sebagai bukti validasi klaim produk."}], "jawaban_benar": [1, 3, 4, 5], "penjelasan": "Pilihan 1 benar karena visualisasi bahan baku segar secara langsung mengkomunikasikan nilai \"alami\" dan \"organik\" kepada konsumen. Pilihan 3 benar karena penggunaan kemasan ramah lingkungan sejalan dengan nilai \"peduli kesehatan\" dan \"peduli lingkungan\" yang umumnya dimiliki oleh target konsumen produk organik, sehingga memperkuat citra merek. Pilihan 4 benar karena konsumen yang peduli kesehatan sangat memperhatikan kandungan nutrisi dan komposisi dari produk yang mereka konsumsi; informasi yang transparan akan membangun kepercayaan. Pilihan 5 benar karena logo sertifikasi organik dari pihak ketiga adalah bukti validasi yang paling kuat untuk meyakinkan konsumen bahwa produk benar-benar organik sehingga menjadi nilai jual yang sangat penting. Pilihan 2 tidak benar karena merupakan klaim yang berlebihan, tidak dapat dibuktikan, dan berpotensi melanggar etika periklanan serta peraturan BPOM. Hal ini justru dapat merusak kredibilitas produk."}, {"nomor": 6, "tipe": "pilihan_ganda", "teks_soal": "Sebuah perajin batik tulis ingin menjual hasil karyanya secara langsung kepada wisatawan yang datang ke galeri miliknya tanpa melalui perantara toko atau agen. Pola penyaluran produk dari produsen langsung ke konsumen akhir ini merupakan contoh dari strategi distribusi .... (Prediksi TKA 2026)", "opsi": [{"label": "A", "teks": "tidak langsung"}, {"label": "B", "teks": "selektif"}, {"label": "C", "teks": "intensif"}, {"label": "D", "teks": "eksklusif"}, {"label": "E", "teks": "langsung"}], "jawaban_benar": "E", "penjelasan": "Soal ini mengukur pemahaman dasar siswa mengenai jenis-jenis saluran distribusi. Distribusi langsung adalah strategi di mana produsen menjual produknya langsung kepada konsumen akhir tanpa melibatkan pihak perantara (grosir, agen, atau pengecer). Penjualan di galeri milik sendiri, toko online resmi, atau penjualan dari pintu ke pintu adalah contoh dari saluran distribusi langsung. Sebaliknya, distribusi tidak langsung melibatkan satu atau lebih perantara. Distribusi intensif, selektif, dan eksklusif adalah tingkatan dalam distribusi tidak langsung yang berkaitan dengan jumlah perantara yang digunakan."}, {"nomor": 7, "tipe": "pilihan_ganda", "teks_soal": "Seorang siswa SMK Tata Busana melihat adanya tren \"tie-dye\" (teknik ikat celup) yang kembali populer di kalangan remaja melalui media sosial. Untuk memastikan bahwa tren ini benar-benar memiliki potensi pasar di lingkungannya, langkah penerapan analisis peluang usaha yang paling tepat untuk dilakukan selanjutnya adalah ....", "opsi": [{"label": "A", "teks": "segera memproduksi 100 kaos tie-dye untuk dijual"}, {"label": "B", "teks": "mencari pemasok kaos polos dan pewarna tekstil termurah"}, {"label": "C", "teks": "membuat proposal usaha lengkap dan mencari pinjaman modal"}, {"label": "D", "teks": "melakukan survei kecil-kecilan kepada teman-teman sekolah tentang minat dan daya beli mereka"}, {"label": "E", "teks": "merancang logo dan nama merek yang menarik untuk produknya"}], "jawaban_benar": "D", "penjelasan": "Soal ini mengukur kemampuan siswa dalam menerapkan langkah-langkah analisis peluang usaha. Setelah mengidentifikasi potensi dari lingkungan eksternal (tren di media sosial), langkah krusial berikutnya adalah memvalidasi peluang tersebut. Melakukan survei kepada calon konsumen potensial (teman-teman sekolah) adalah cara yang paling tepat untuk menguji asumsi dan mendapatkan data nyata mengenai minat, preferensi, dan kesediaan untuk membayar (daya beli) sehingga keputusan untuk melanjutkan usaha didasarkan pada data, bukan sekadar intuisi. Langkah lain seperti produksi massal, mencari pemasok, atau membuat proposal adalah tindakan yang prematur sebelum peluangnya tervalidasi."}, {"nomor": 8, "tipe": "tabel_pernyataan", "teks_soal": "Pemilik sebuah kafe sedang menganalisis laporan keuangan tahunannya untuk merencanakan strategi tahun depan. Data menunjukkan:\n- Pendapatan penjualan meningkat 20% dari tahun lalu.\n- Laba bersih meningkat, namun hanya sebesar 5% karena naiknya biaya bahan baku.\n- Laporan neraca menunjukkan jumlah utang usaha kepada pemasok meningkat signifikan.\nBerdasarkan analisis data keuangan tersebut, tentukan Logis atau Tidak Logis untuk setiap kesimpulan berikut! (TKA 2025)", "kolom_status": ["Logis", "Tidak Logis"], "pernyataan": [{"no": 1, "teks": "Kenaikan pendapatan penjualan sebesar 20% secara otomatis menunjukkan bahwa kondisi keuangan kafe sangat sehat.", "status_benar": "Tidak Logis"}, {"no": 2, "teks": "Peningkatan utang usaha yang signifikan bisa menjadi indikasi adanya masalah dalam pengelolaan arus kas untuk pembayaran.", "status_benar": "Logis"}, {"no": 3, "teks": "Strategi yang perlu diprioritaskan tahun depan adalah mencari cara untuk menekan biaya bahan baku tanpa mengurangi kualitas.", "status_benar": "Logis"}], "penjelasan": [{"no": 1, "teks": "Kenaikan pendapatan memang merupakan sinyal positif, namun tidak secara otomatis berarti keuangan sehat. Data lain menunjukkan laba naik tipis dan utang meningkat. Kesehatan keuangan harus dilihat secara holistik, mencakup profitabilitas, likuiditas (kemampuan membayar utang jangka pendek), dan solvabilitas (kemampuan membayar semua utang)."}, {"no": 2, "teks": "Utang usaha yang terus menumpuk sementara penjualan dan laba meningkat bisa menjadi sinyal bahaya. Ini menunjukkan bahwa kas yang dihasilkan dari penjualan mungkin tidak cukup untuk membayar kewajiban kepada pemasok secara tepat waktu, yang menandakan adanya potensi masalah arus kas."}, {"no": 3, "teks": "Dari analisis, laba bersih tertahan peningkatannya karena naiknya biaya bahan baku. Oleh karena itu, langkah strategis yang paling logis dan berdampak langsung pada peningkatan profitabilitas adalah melakukan efisiensi atau negosiasi ulang pada biaya bahan baku, yang merupakan komponen biaya terbesar."}]}, {"nomor": 9, "tipe": "tabel_pernyataan", "teks_soal": "Sebuah merek baru menjual skincare yang dibuat dari bahan-bahan organik dan tidak diuji coba pada hewan (cruelty-free). Produk ini dijual dengan harga lebih tinggi dibandingkan produk massal di pasaran. Target konsumennya adalah wanita usia 20-35 tahun yang memiliki kesadaran lingkungan tinggi.\nBerdasarkan situasi dan target pasar tersebut, tentukan Efektif atau Tidak Efektif untuk setiap strategi pemasaran berikut! (Prediksi TKA 2026)", "kolom_status": ["Efektif", "Tidak Efektif"], "pernyataan": [{"no": 1, "teks": "Memasang iklan di televisi umum pada jam tayang utama untuk menjangkau audiens seluas-luasnya.", "status_benar": "Tidak Efektif"}, {"no": 2, "teks": "Membangun narasi (storytelling) di media sosial tentang pentingnya produk cruelty-free dan proses pencarian bahan organik yang etis.", "status_benar": "Efektif"}, {"no": 3, "teks": "Memberikan sampel produk gratis kepada komunitas atau blogger yang fokus pada gaya hidup vegan dan ramah lingkungan.", "status_benar": "Efektif"}], "penjelasan": [{"no": 1, "teks": "Iklan TV memang menjangkau audiens luas, tetapi biayanya sangat mahal dan tidak tertarget. Sebagian besar penonton mungkin bukan target pasar yang peduli dengan isu cruelty-free atau organik."}, {"no": 2, "teks": "Storytelling adalah cara yang sangat kuat untuk menghubungkan secara emosional dengan target pasar yang memiliki nilai-nilai tertentu. Membangun narasi mengenai pencarian bahan-bahan organik yang etis dapat meningkatkan loyalitas konsumen dan membangun kesadaran merek secara organik."}, {"no": 3, "teks": "Memberikan sampel produk kepada komunitas atau blogger yang relevan (nilai-nilai sejenis) adalah strategi pemasaran dari mulut ke mulut (word-of-mouth) yang sangat tertarget. Ulasan positif dari mereka akan sangat efektif dan efisien untuk membangun kepercayaan dan mendorong penjualan."}]}, {"nomor": 10, "tipe": "multi_select", "teks_soal": "Sebuah perusahaan rintisan (startup) di bidang teknologi pendidikan menciptakan sebuah platform belajar interaktif. Aset-aset intelektual yang mereka miliki meliputi: nama platform yang unik yaitu \"Cerdikia\", sebuah logo burung hantu sebagai Merek Dagang, metode pengajaran adaptif yang baru, dan ratusan video pembelajaran orisinal yang mereka produksi sendiri.\nBerdasarkan situasi tersebut, manakah bentuk-bentuk perlindungan Hak atas Kekayaan Intelektual (HaKI) yang paling relevan untuk diterapkan pada aset-aset tersebut? (Pilihlah jawaban yang benar! Jawaban benar lebih dari satu) (Prediksi TKA 2026)", "opsi": [{"id": 1, "teks": "Mendaftarkan nama \"Cerdikia\" dan logo burung hantu sebagai Merek Dagang."}, {"id": 2, "teks": "Mengajukan Hak Paten untuk melindungi metode pengajaran adaptif mereka yang inovatif."}, {"id": 3, "teks": "Mendaftarkan Desain Industri untuk melindungi tampilan warna pada setiap tombol di dalam aplikasi."}, {"id": 4, "teks": "Mengandalkan Hak Cipta yang melekat secara otomatis pada video pembelajaran dan kode sumber (source code) platform."}, {"id": 5, "teks": "Membuat prototipe produk untuk diuji coba dan mendapatkan umpan balik."}], "jawaban_benar": [1, 2, 4], "penjelasan": "Pilihan 1 benar karena Merek Dagang berfungsi untuk melindungi identitas komersial suatu produk/jasa (nama dan logo). Ini krusial untuk mencegah peniruan dan membangun pengenalan merek (brand recognition) yang kuat. Pilihan 2 benar karena Hak Paten diberikan untuk invensi atau penemuan baru yang memberikan solusi teknis, seperti metode baru dalam sistem pengajaran adaptif. Pilihan 4 benar karena Hak Cipta melindungi karya orisinal di bidang sains dan sastra; video pembelajaran (karya audiovisual) dan source code dianggap sebagai karya tulis, keduanya otomatis dilindungi Hak Cipta. Pilihan 3 salah karena Desain Industri melindungi tampilan bentuk, konfigurasi, atau komposisi garis dan warna suatu produk fisik, bukan tampilan antarmuka digital seperti warna tombol dalam aplikasi. Pilihan 5 tidak tepat karena membuat prototipe adalah tahapan pengembangan produk untuk uji coba, bukan bentuk perlindungan hukum HaKI."}, {"nomor": 11, "tipe": "pilihan_ganda", "teks_soal": "Dalam prosedur pengembangan desain produk baru, terdapat sebuah tahapan awal di mana seluruh anggota tim berkumpul untuk menghasilkan sebanyak mungkin ide-ide kreatif tanpa melakukan penilaian atau kritik terlebih dahulu. Tujuan dari tahapan yang dikenal sebagai brainstorming ini adalah .... (TKA 2025)", "opsi": [{"label": "A", "teks": "membuat prototipe fungsional pertama dari produk"}, {"label": "B", "teks": "memilih satu ide terbaik untuk segera diproduksi"}, {"label": "C", "teks": "menganalisis kekuatan dan kelemahan pesaing"}, {"label": "D", "teks": "menyusun laporan keuangan dan proyeksi laba"}, {"label": "E", "teks": "mengeksplorasi beragam kemungkinan solusi secara bebas"}], "jawaban_benar": "E", "penjelasan": "Soal ini mengukur pemahaman siswa mengenai salah satu tahapan penting dalam proses pengembangan produk. Brainstorming adalah teknik untuk mengeksplorasi berbagai kemungkinan solusi atau ide secara bebas tanpa batasan kritik terlebih dahulu. Tujuan utamanya adalah mengumpulkan sebanyak mungkin ide kreatif, di mana kuantitas diutamakan daripada kualitas pada tahap ini. Penilaian, kritik, dan seleksi ide dilakukan pada tahap selanjutnya. Pilihan lainnya merupakan tahapan yang berbeda setelah proses ideasi selesai."}, {"nomor": 12, "tipe": "pilihan_ganda", "teks_soal": "Seorang calon investor ingin menilai kesehatan keuangan sebuah perusahaan sebelum menanamkan modal. Ia perlu mengetahui posisi keuangan perusahaan pada tanggal tertentu, yang mencakup informasi tentang total aset (harta) yang dimiliki, total liabilitas (utang) yang harus dibayar, dan total ekuitas (modal) pemilik. Laporan keuangan yang harus ia periksa untuk mendapatkan informasi tersebut adalah .... (Prediksi TKA 2026)", "opsi": [{"label": "A", "teks": "laporan laba rugi"}, {"label": "B", "teks": "laporan arus kas"}, {"label": "C", "teks": "neraca keuangan"}, {"label": "D", "teks": "catatan atas laporan keuangan"}, {"label": "E", "teks": "laporan biaya produksi"}], "jawaban_benar": "C", "penjelasan": "Soal ini bertujuan mengukur kemampuan siswa dalam menerapkan pengetahuannya untuk memilih laporan keuangan yang tepat sesuai kebutuhan informasi. Neraca (atau Laporan Posisi Keuangan) adalah satu-satunya laporan yang menyajikan gambaran sesaat (snapshot) mengenai aset, liabilitas, dan ekuitas perusahaan pada satu titik waktu tertentu. Laporan ini didasarkan pada persamaan dasar akuntansi: Aset = Liabilitas + Ekuitas. Laporan Laba Rugi menyajikan kinerja pendapatan dan beban selama satu periode, sedangkan Laporan Arus Kas melacak pergerakan kas masuk dan keluar selama satu periode."}, {"nomor": 13, "tipe": "tabel_pernyataan", "teks_soal": "Sebuah usaha konfeksi yang biasanya memproduksi 50 kemeja per hari tiba-tiba menerima pesanan mendadak sebanyak 500 kemeja yang harus selesai dalam waktu satu minggu. Hal ini memaksa pemilik usaha untuk segera menyesuaikan rencana produksinya.\nBerdasarkan situasi tersebut, tentukan Logis atau Tidak Logis untuk setiap tindakan penyesuaian rencana produksi berikut! (Prediksi TKA 2026)", "kolom_status": ["Logis", "Tidak Logis"], "pernyataan": [{"no": 1, "teks": "Segera menerima pesanan tersebut tanpa memeriksa terlebih dahulu kapasitas mesin jahit dan ketersediaan kain di gudang.", "status_benar": "Tidak Logis"}, {"no": 2, "teks": "Menghitung ulang biaya produksi per kemeja dengan mempertimbangkan kemungkinan adanya biaya tambahan seperti upah lembur bagi penjahit.", "status_benar": "Logis"}, {"no": 3, "teks": "Menginstruksikan penjahit untuk mengurangi kualitas jahitan dan menggunakan benang yang lebih murah agar produksi lebih cepat selesai.", "status_benar": "Tidak Logis"}], "penjelasan": [{"no": 1, "teks": "Perencanaan produksi yang baik selalu dimulai dengan pemeriksaan kapasitas sumber daya. Menerima pesanan besar tanpa memastikan ketersediaan bahan baku dan kapasitas produksi adalah tindakan yang sangat berisiko dan dapat menyebabkan kegagalan memenuhi pesanan."}, {"no": 2, "teks": "Pesanan dalam jumlah besar dan mendadak sering kali mengubah struktur biaya. Adanya potensi biaya lembur harus diperhitungkan dalam biaya produksi agar harga jual yang ditawarkan tetap menghasilkan keuntungan. Ini menunjukkan perencanaan biaya yang cermat."}, {"no": 3, "teks": "Mengorbankan kualitas untuk kecepatan adalah keputusan jangka pendek yang dapat merusak reputasi usaha. Pengendalian mutu harus tetap dijaga. Seharusnya, solusi yang dicari adalah penambahan jam kerja atau sumber daya, bukan penurunan standar kualitas."}]}, {"nomor": 14, "tipe": "tabel_pernyataan", "teks_soal": "Seorang investor sedang meninjau proposal usaha untuk pendirian sebuah \"Warung Seblak Modern\". Investor tersebut memberikan beberapa catatan setelah membaca proposal yang diajukan.\nBerdasarkan prinsip penyusunan proposal usaha yang baik, tentukan apakah catatan dari investor berikut menunjukkan aspek yang Kuat atau Lemah dari proposal tersebut! (TKA 2025)", "kolom_status": ["Kuat", "Lemah"], "pernyataan": [{"no": 1, "teks": "Bagian analisis pasar hanya menyatakan bahwa \"seblak disukai banyak orang\" tanpa menyajikan data spesifik mengenai target konsumen atau analisis pesaing.", "status_benar": "Lemah"}, {"no": 2, "teks": "Rencana keuangan telah menyertakan pos \"biaya tak terduga\" sebesar 10% dari total modal yang dibutuhkan.", "status_benar": "Kuat"}, {"no": 3, "teks": "Bagian analisis pasar hanya menyatakan bahwa \"seblak disukai banyak orang\" tanpa menyajikan data spesifik mengenai target konsumen atau analisis pesaing.", "status_benar": "Kuat"}], "penjelasan": [{"no": 1, "teks": "Analisis pasar yang baik harus didukung oleh data yang spesifik, bukan asumsi umum. Proposal yang baik seharusnya menyebutkan siapa target konsumennya secara rinci (misalnya usia, lokasi), menganalisis siapa saja pesaing di sekitar lokasi, dan menjelaskan keunggulan kompetitif yang dimiliki."}, {"no": 2, "teks": "Menyertakan pos biaya tak terduga menunjukkan perencanaan keuangan yang matang dan realistis, mengantisipasi risiko-risiko yang mungkin muncul di luar perkiraan awal. Ini adalah praktik yang baik dan meningkatkan kredibilitas proposal di mata investor."}], "catatan": "Perhatian: gambar sumber untuk pernyataan ke-3 pada tabel soal ini terpotong (halaman 124-125 hanya menampilkan 2 baris pernyataan yang terlihat jelas). Jumlah pernyataan dan teks pernyataan ke-3 perlu diverifikasi ulang ke buku sumber asli."}, {"nomor": 15, "tipe": "multi_select", "teks_soal": "Sebuah usaha warung kopi tradisional mengalami penurunan jumlah pelanggan. Survei kecil menunjukkan bahwa pelanggan lama masih menyukai rasa kopi, namun generasi muda menganggap warung kopi tersebut \"ketinggalan zaman\" dan lebih memilih kafe modern. Lokasi warung kopi berada di dekat area kampus.\nBerdasarkan situasi tersebut, manakah strategi pemasaran dan pengembangan produk yang paling tepat diterapkan untuk menarik kembali pelanggan lama dan menggaet pelanggan muda? (Pilihlah jawaban yang benar! Jawaban benar lebih dari satu) (Prediksi TKA 2026)", "opsi": [{"id": 1, "teks": "Mempertahankan menu kopi tradisional sebagai identitas utama sambil menambahkan beberapa minuman kekinian."}, {"id": 2, "teks": "Mengubah total resep kopi tradisional yang sudah ada agar sesuai dengan selera modern."}, {"id": 3, "teks": "Meningkatkan promosi melalui media sosial (Instagram/TikTok) dengan menampilkan suasana warung kopi."}, {"id": 4, "teks": "Menambah fasilitas seperti Wi-Fi gratis dan stopkontak untuk memenuhi kebutuhan mahasiswa."}, {"id": 5, "teks": "Fokus melayani pelanggan lama saja dan tidak perlu memikirkan pelanggan muda."}], "jawaban_benar": [1, 3, 4], "penjelasan": "Pilihan 1 benar karena menjaga basis pelanggan loyal (dengan mempertahankan produk andalan) sambil berinovasi untuk menarik segmen baru (pelanggan muda) dengan menu kekinian. Pilihan 3 benar karena target pelanggan muda sangat aktif di media sosial; mempromosikan suasana warung kopi secara efektif untuk mengubah persepsi \"ketinggalan zaman\" dan menarik mereka untuk datang. Pilihan 4 benar karena fasilitas ini menjawab kebutuhan fungsional dari target pasar mahasiswa, menjadikan warung kopi sebagai tempat yang nyaman untuk belajar atau mengerjakan tugas. Pilihan 2 tidak tepat karena mengubah total resep berisiko kehilangan pelanggan lama yang loyal. Pilihan 5 tidak tepat karena mengabaikan segmen pasar muda yang besar di area kampus adalah sebuah strategi yang tidak berkelanjutan untuk pertumbuhan bisnis."}, {"nomor": 16, "tipe": "pilihan_ganda", "konteks_bersama_id": "salad_rina_16_20", "teks_soal": "Rina, seorang siswi SMK Jurusan Tata Boga, memulai usaha mandiri bernama \"Salad Sehat by Rina\". Ia menjual paket salad sayur segar dengan tiga varian saus (dressing) orisinal buatannya sendiri, yaitu creamy cheese, roasted sesame, dan spicy lime. Pemasaran utamanya dilakukan melalui status WhatsApp dan akun Instagram pribadinya, dengan sistem pemesanan mingguan dan mengantarkan pesanan sendiri setelah jam pulang sekolah ke rumah pelanggan di sekitar lingkungan tempat tinggalnya. Setelah dua bulan berjalan, usahanya cukup digemari oleh teman-teman dan para guru. Namun, seiring bertambahnya pesanan, beberapa masalah mulai muncul.\nPertama, ada keluhan mengenai porsi salad yang tidak konsisten, terkadang porsinya banyak, terkadang sedikit. Kedua, ada pelanggan yang menemukan rambut di dalam produknya. Ketiga, karena keterbatasan waktu dan tenaga untuk mengantar, Rina sering menolak pesanan dari pelanggan potensial yang lokasinya lebih jauh dari area layanannya saat ini.\n\nUntuk mengatasi masalah porsi salad yang tidak konsisten, tindakan pengendalian mutu yang paling tepat dan efektif untuk diterapkan oleh Rina adalah .... (Prediksi TKA 2026)", "opsi": [{"label": "A", "teks": "membuat varian saus baru untuk mengalihkan perhatian pelanggan"}, {"label": "B", "teks": "membeli sayuran dari pemasok yang berbeda setiap minggu"}, {"label": "C", "teks": "menaikkan harga jual produk secara signifikan"}, {"label": "D", "teks": "menggunakan timbangan digital untuk menakar setiap bahan sesuai standar porsi"}, {"label": "E", "teks": "hanya menerima pesanan dari pelanggan yang tidak pernah mengeluh"}], "jawaban_benar": "D", "penjelasan": "Soal ini bertujuan untuk mengukur kemampuan siswa dalam menerapkan solusi pengendalian mutu praktis. Masalah porsi yang tidak konsisten disebabkan oleh tidak adanya standar pengukuran yang baku. Tindakan yang paling tepat untuk menyelesaikan masalah ini adalah dengan menerapkan standardisasi. Menggunakan timbangan digital untuk menakar setiap komponen salad akan memastikan bahwa setiap porsi memiliki berat dan komposisi yang sama persis sehingga menghasilkan produk yang konsisten. Pilihan lain tidak menyelesaikan akar masalah inkonsistensi porsi."}, {"nomor": 17, "tipe": "pilihan_ganda", "konteks_bersama_id": "salad_rina_16_20", "teks_soal": "Rina mengantarkan sendiri produk saladnya dari tempat ia membuatnya langsung ke rumah pelanggan tanpa menggunakan jasa perantara. Berdasarkan alurnya, saluran distribusi yang digunakan oleh Rina disebut .... (Prediksi TKA 2026)", "opsi": [{"label": "A", "teks": "saluran distribusi satu tingkat"}, {"label": "B", "teks": "saluran distribusi tidak langsung"}, {"label": "C", "teks": "saluran distribusi dua tingkat"}, {"label": "D", "teks": "saluran distribusi langsung"}, {"label": "E", "teks": "saluran distribusi nol tingkat (langsung)"}], "jawaban_benar": "E", "penjelasan": "Soal ini mengukur pemahaman konsep dasar mengenai saluran distribusi. Saluran distribusi nol tingkat (langsung) adalah jenis saluran di mana produsen menjual dan menyalurkan produknya secara langsung kepada konsumen akhir tanpa ada pihak perantara sama sekali. Dalam kasus ini, Rina (produsen) mengantarkan sendiri produknya ke pelanggan (konsumen akhir). Saluran satu tingkat, dua tingkat, dan seterusnya adalah contoh saluran distribusi tidak langsung karena melibatkan perantara seperti pengecer, grosir, atau agen."}, {"nomor": 18, "tipe": "tabel_pernyataan", "konteks_bersama_id": "salad_rina_16_20", "teks_soal": "Menanggapi keluhan pelanggan yang menemukan rambut di dalam produknya, Rina menyadari perlu segera memperbaiki aspek kebersihan dalam proses produksinya untuk menjaga kepercayaan pelanggan.\nTentukan Efektif atau Tidak Efektif untuk setiap tindakan perbaikan yang dipertimbangkan oleh Rina berikut! (Prediksi TKA 2026)", "kolom_status": ["Efektif", "Tidak Efektif"], "pernyataan": [{"no": 1, "teks": "Meminta maaf kepada pelanggan yang mengeluh dan memberikan produk pengganti tanpa mengubah prosedur kerja apa pun.", "status_benar": "Tidak Efektif"}, {"no": 2, "teks": "Menetapkan Standar Operasional Prosedur (SOP) kebersihan, seperti wajib menggunakan penutup kepala (hairnet) dan sarung tangan saat menyiapkan salad.", "status_benar": "Efektif"}, {"no": 3, "teks": "Memastikan semua sayuran dicuci bersih dengan air mengalir dan semua peralatan masak dibersihkan sebelum dan sesudah digunakan.", "status_benar": "Efektif"}], "penjelasan": [{"no": 1, "teks": "Memberikan kompensasi kepada pelanggan memang penting, tetapi itu adalah tindakan reaktif. Jika tidak diiringi dengan perbaikan prosedur, masalah yang sama kemungkinan besar akan terulang dan dapat merusak reputasi usaha secara permanen."}, {"no": 2, "teks": "Menetapkan SOP adalah tindakan preventif yang fundamental dalam pengendalian mutu. Menggunakan penutup kepala dan sarung tangan secara langsung mengatasi risiko kontaminasi dari rambut, sehingga dapat mencegah masalah terulang kembali."}, {"no": 3, "teks": "Ini adalah bagian dasar dari kebersihan (higiene) pangan. Memastikan kebersihan bahan baku dan peralatan adalah langkah esensial untuk menjamin keamanan dan kualitas produk yang dihasilkan."}]}, {"nomor": 19, "tipe": "tabel_pernyataan", "konteks_bersama_id": "salad_rina_16_20", "teks_soal": "Fakta bahwa Rina sering menolak pesanan dari area yang lebih jauh menunjukkan adanya sebuah peluang usaha untuk berkembang.\nTentukan Logis atau Tidak Logis untuk setiap strategi yang dapat Rina pertimbangkan untuk menangkap peluang tersebut! (Prediksi TKA 2026)", "kolom_status": ["Logis", "Tidak Logis"], "pernyataan": [{"no": 1, "teks": "Membuka cabang dapur baru di beberapa lokasi yang jauh untuk memproduksi salad di tempat.", "status_benar": "Tidak Logis"}, {"no": 2, "teks": "Mengabaikan semua pesanan dari luar area layanannya saat ini.", "status_benar": "Tidak Logis"}, {"no": 3, "teks": "Bekerja sama dengan platform ojek online atau kurir lokal untuk pengantaran pihak ketiga.", "status_benar": "Logis"}], "penjelasan": [{"no": 1, "teks": "Membuka cabang baru adalah strategi ekspansi yang membutuhkan modal besar dan kompleksitas operasional yang tinggi. Untuk skala usaha Rina saat ini, langkah tersebut terlalu tidak realistis."}, {"no": 2, "teks": "Dari sudut pandang pengembangan usaha, mengabaikan permintaan pasar adalah tindakan yang membuang-buang peluang. Strategi yang baik seharusnya mencari cara untuk memenuhi permintaan tersebut, bukan menghindarinya."}, {"no": 3, "teks": "Bekerja sama dengan pihak ketiga untuk pengiriman adalah solusi yang paling logis dan efisien bagi usaha skala kecil. Ini memungkinkan Rina memperluas jangkauan pasar secara instan tanpa perlu investasi besar pada kendaraan atau merekrut tenaga pengantar sendiri."}]}, {"nomor": 20, "tipe": "multi_select", "konteks_bersama_id": "salad_rina_16_20", "teks_soal": "Untuk membuat usaha \"Salad Sehat by Rina\" menjadi lebih profesional, terpercaya, dan siap untuk berkembang, Rina perlu melakukan perbaikan secara menyeluruh berdasarkan masalah-masalah yang dihadapinya.\nManakah langkah-langkah perbaikan yang paling fundamental dan strategis yang perlu Rina implementasikan? (Pilihlah jawaban yang benar! Jawaban benar lebih dari satu) (Prediksi TKA 2026)", "opsi": [{"id": 1, "teks": "Menetapkan dan menerapkan Standar Operasional Prosedur (SOP) yang jelas untuk kebersihan dan penakaran porsi."}, {"id": 2, "teks": "Membuat sistem pemesanan yang lebih terstruktur, misalnya menggunakan Google Form atau chat bot sederhana."}, {"id": 3, "teks": "Mengganti semua bahan baku dengan bahan organik yang harganya tiga kali lipat lebih mahal."}, {"id": 4, "teks": "Mencari alternatif solusi pengiriman untuk dapat melayani pelanggan di area yang lebih luas."}, {"id": 5, "teks": "Fokus membuat varian rasa saus baru sebanyak mungkin tanpa memperbaiki masalah utama."}], "jawaban_benar": [1, 2, 4], "penjelasan": "Pilihan 1 benar karena ini secara langsung menyelesaikan masalah inti terkait kualitas dan konsistensi produk, yang merupakan fondasi kepercayaan pelanggan. Pilihan 2 benar karena sistem pemesanan yang terstruktur akan meningkatkan efisiensi operasional, mengurangi kesalahan pencatatan, dan memberikan citra yang lebih profesional kepada pelanggan. Pilihan 4 benar karena ini adalah solusi langsung untuk mengatasi keterbatasan distribusi, yang saat ini menjadi penghalang utama bagi pertumbuhan usaha untuk menjangkau pasar yang lebih besar. Pilihan 3, meskipun baik, merupakan perubahan strategi produk yang signifikan dan mungkin tidak perlu dilakukan saat ini; kenaikan harga yang drastis bisa menjadi masalah baru. Pilihan 5 adalah tindakan yang tidak strategis karena mengembangkan produk baru tidak akan menyelesaikan masalah fundamental terkait kualitas, kebersihan, dan distribusi yang sedang terjadi."}, {"nomor": 21, "tipe": "pilihan_ganda", "konteks_bersama_id": "komet_21_25", "teks_soal": "Tindakan penjualan merchandise tidak resmi oleh toko daring merupakan bentuk pelanggaran hak kekayaan intelektual. Untuk memiliki dasar hukum yang kuat dalam melindungi karya mereka, langkah perlindungan HaKI yang paling fundamental dan tepat bagi Andi dan Bima adalah .... (Prediksi TKA 2026)", "opsi": [{"label": "A", "teks": "mengajukan Hak Paten untuk metode pembuatan komik"}, {"label": "B", "teks": "mendaftarkan Desain Industri untuk setiap panel komik"}, {"label": "C", "teks": "mengurus izin usaha penjualan merchandise"}, {"label": "D", "teks": "mencatatkan Hak Cipta atas karakter Komet dan cerita komiknya"}, {"label": "E", "teks": "menganggapnya sebagai promosi gratis dan membiarkannya"}], "jawaban_benar": "D", "penjelasan": "Hak Cipta adalah bentuk perlindungan yang paling tepat untuk karya seni dan sastra seperti cerita, gambar, dan karakter komik. Hak Cipta memberikan hak eksklusif kepada pencipta untuk mengumumkan, memperbanyak, dan memberikan izin bagi pihak lain untuk menggunakan karyanya. Dengan mencatatkan Hak Cipta, Andi dan Bima memiliki bukti hukum yang sah atas kepemilikan karya mereka. Hak Paten untuk invensi teknologi, Desain Industri untuk tampilan produk tiga dimensi, dan izin usaha adalah legalitas operasional bukan perlindungan karya, sehingga ketiganya bukan pilihan yang tepat.", "catatan": "Teks stimulus pada halaman sumber (128) mengalami sedikit gangguan bayangan/silau pada foto, sehingga sebagian kalimat pada paragraf kedua dan ketiga direkonstruksi berdasarkan konteks. Disarankan verifikasi ke buku asli untuk kata-per-kata yang sama persis."}, {"nomor": 22, "tipe": "pilihan_ganda", "konteks_bersama_id": "komet_21_25", "teks_soal": "Dalam menyusun proposal untuk perusahaan minuman, Andi dan Bima perlu menjelaskan secara rinci mengenai batasan kerja sama tersebut, termasuk durasi penggunaan karakter Komet, media iklan yang diizinkan, dan skema pembayaran. Penjelasan detail mengenai hal tersebut sebaiknya dituangkan dalam bagian .... (Prediksi TKA 2026)", "opsi": [{"label": "A", "teks": "ruang lingkup dan ketentuan kerja sama"}, {"label": "B", "teks": "profil tim penyusun"}, {"label": "C", "teks": "analisis SWOT"}, {"label": "D", "teks": "latar belakang masalah"}, {"label": "E", "teks": "lampiran portofolio"}], "jawaban_benar": "A", "penjelasan": "Soal ini mengukur pemahaman siswa tentang struktur dan isi sebuah proposal kerja sama atau bisnis. Bagian ruang lingkup dan ketentuan kerja sama (sering disebut juga klausul perjanjian) adalah bagian di mana semua aspek teknis dan legal dari sebuah kerja sama dijelaskan secara rinci. Hal ini mencakup hak penggunaan, batasan, durasi, dan kewajiban finansial untuk memastikan tidak ada kesalahpahaman di antara pihak-pihak yang terlibat. Bagian lain seperti profil tim, analisis SWOT, dan latar belakang memiliki fungsi yang berbeda dalam sebuah proposal."}, {"nomor": 23, "tipe": "tabel_pernyataan", "konteks_bersama_id": "komet_21_25", "teks_soal": "Andi dan Bima tidak memiliki modal dan pengalaman untuk memproduksi merchandise yang diminta oleh para penggemar. Mereka mempertimbangkan beberapa model bisnis untuk memulai usaha merchandise mereka.\nTentukan Logis atau Tidak Logis untuk setiap model bisnis yang dipertimbangkan berikut! (Prediksi TKA 2026)", "kolom_status": ["Logis", "Tidak Logis"], "pernyataan": [{"no": 1, "teks": "Segera mengambil pinjaman dalam jumlah besar untuk membeli ribuan kaos dan menyewa ruko sebagai toko fisik.", "status_benar": "Tidak Logis"}, {"no": 2, "teks": "Menjalankan sistem pre-order (PO), di mana produk hanya akan diproduksi setelah pesanan dan pembayaran terkumpul dari sejumlah pembeli.", "status_benar": "Logis"}, {"no": 3, "teks": "Bekerja sama dengan platform print-on-demand, di mana pihak ketiga yang akan memproduksi dan mengirimkan merchandise setiap kali ada pesanan masuk.", "status_benar": "Logis"}], "penjelasan": [{"no": 1, "teks": "Model bisnis ini membutuhkan modal awal yang sangat besar (produksi massal, sewa tempat) dan memiliki risiko finansial yang sangat tinggi, terutama bagi pemula. Ada risiko besar produk tidak laku dan modal tidak kembali."}, {"no": 2, "teks": "Sistem pre-order adalah model bisnis rendah risiko yang sangat cocok untuk pemula. Modal produksi didapatkan langsung dari pelanggan, sehingga tidak ada risiko kerugian akibat barang yang tidak terjual."}, {"no": 3, "teks": "Model print-on-demand (POD) adalah solusi modern yang menghilangkan kebutuhan modal awal untuk produksi dan penyimpanan barang. Ini memungkinkan mereka untuk fokus pada desain dan pemasaran, sementara produksi dan logistik ditangani oleh mitra, sehingga sangat sesuai dengan kondisi mereka."}]}, {"nomor": 24, "tipe": "tabel_pernyataan", "konteks_bersama_id": "komet_21_25", "teks_soal": "Dalam kerja sama dengan perusahaan minuman, Andi dan Bima harus memastikan hak mereka atas karakter Komet tetap terlindungi.\nTentukan Tepat atau Tidak Tepat untuk setiap tindakan terkait pengelolaan HaKI dalam kerja sama tersebut! (Prediksi TKA 2026)", "kolom_status": ["Tepat", "Tidak Tepat"], "pernyataan": [{"no": 1, "teks": "Menyerahkan seluruh hak kepemilikan karakter Komet kepada perusahaan minuman sebagai syarat utama kerja sama.", "status_benar": "Tidak Tepat"}, {"no": 2, "teks": "Membuat kontrak lisensi yang jelas, yang membatasi penggunaan karakter hanya untuk kampanye iklan selama satu tahun.", "status_benar": "Tepat"}, {"no": 3, "teks": "Mengizinkan perusahaan minuman untuk mengubah desain karakter Komet secara bebas tanpa perlu persetujuan dari Andi.", "status_benar": "Tidak Tepat"}], "penjelasan": [{"no": 1, "teks": "Menyerahkan hak milik (ownership) atas aset intelektual utama adalah keputusan bisnis yang sangat buruk. Ini berarti mereka kehilangan kontrol dan potensi pendapatan di masa depan dari karakter yang mereka ciptakan. Model yang benar adalah lisensi, bukan penjualan aset."}, {"no": 2, "teks": "Kontrak lisensi yang jelas adalah instrumen hukum yang tepat untuk kerja sama semacam ini. Dengan mendefinisikan batasan (media, durasi) secara jelas, Andi dan Bima tetap memegang kendali atas karakter mereka sambil mendapatkan pemasukan."}, {"no": 3, "teks": "Sebagai pencipta, Andi memiliki hak moral atas integritas karyanya. Kontrak harus menyertakan klausul bahwa setiap perubahan desain karakter harus mendapatkan persetujuan tertulis dari pencipta untuk menjaga konsistensi dan kualitas karakter."}]}, {"nomor": 25, "tipe": "multi_select", "konteks_bersama_id": "komet_21_25", "teks_soal": "Mengingat semua peluang (permintaan merchandise, tawaran sponsor) dan tantangan (pembajakan, ketiadaan modal) yang ada, Andi dan Bima perlu mengambil langkah-langkah strategis yang terintegrasi untuk membangun bisnis dari webcomic \"Kisah Komet\".\nManakah langkah-langkah strategis yang harus menjadi prioritas utama mereka? (Pilihlah jawaban yang benar! Jawaban benar lebih dari satu) (Prediksi TKA 2026)", "opsi": [{"id": 1, "teks": "Mendaftarkan Hak Cipta atas \"Kisah Komet\" dan karakternya untuk mendapatkan perlindungan hukum."}, {"id": 2, "teks": "Menghentikan rilis episode mingguan untuk fokus pada penanganan kasus pembajakan."}, {"id": 3, "teks": "Menyusun proposal lisensi yang menarik untuk ditindaklanjuti dengan perusahaan minuman dan calon mitra lainnya."}, {"id": 4, "teks": "Meluncurkan lini merchandise resmi dengan model bisnis rendah risiko seperti pre-order atau print-on-demand."}, {"id": 5, "teks": "Membiarkan saja toko tidak resmi menjual merchandise karena bisa membantu popularitas komik."}], "jawaban_benar": [1, 3, 4], "penjelasan": "Pilihan 1 benar karena perlindungan hukum melalui Hak Cipta adalah fondasi dari semua aktivitas komersialisasi. Tanpa ini, mereka tidak memiliki posisi tawar yang kuat dalam negosiasi atau dalam menindak pembajakan. Pilihan 3 benar karena ini adalah peluang nyata yang harus segera ditindaklanjuti sebagai jalur monetisasi yang potensial. Pilihan 4 benar karena model bisnis rendah risiko memungkinkan mereka memenuhi permintaan penggemar tanpa membutuhkan modal besar di awal. Pilihan 2 tidak tepat karena menghentikan rilis konten justru akan menurunkan engagement dan popularitas yang sudah dibangun. Pilihan 5 tidak tepat karena membiarkan pembajakan berjalan akan merugikan mereka secara finansial dan melemahkan posisi hukum mereka di masa depan."}, {"nomor": 26, "tipe": "pilihan_ganda", "konteks_bersama_id": "donutopia_26_30", "teks_soal": "Menghadapi kekhawatiran akan peniruan gaya kemasan \"Donat Klepon\" (\"Donutopia\"), langkah perlindungan Hak Kekayaan Intelektual (HaKI) yang paling fundamental untuk melindungi identitas dan citra usaha adalah .... (TKA 2025)", "opsi": [{"label": "A", "teks": "mengajukan Hak Paten untuk resep \"Donat Klepon\""}, {"label": "B", "teks": "menggunakan bahan baku yang lebih unik dan khas yang lebih sulit ditiru"}, {"label": "C", "teks": "mendaftarkan nama dan logo \"Donutopia\" sebagai Merek Dagang"}, {"label": "D", "teks": "menurunkan harga jual donat untuk mematikan pesaing"}, {"label": "E", "teks": "segera mengurus sertifikasi Halal untuk semua produk"}], "jawaban_benar": "C", "penjelasan": "Soal ini mengukur penerapan pengetahuan tentang HaKI untuk melindungi identitas bisnis. Masalah utama yang dihadapi adalah peniruan identitas visual dan merek. Merek Dagang (Trademark) adalah bentuk perlindungan hukum yang secara spesifik melindungi nama, logo, atau simbol yang digunakan sebagai identitas komersial suatu usaha. Dengan mendaftarkan Merek Dagang, \"Donutopia\" akan memiliki dasar hukum yang kuat untuk melarang pihak lain menggunakan nama atau logo yang serupa yang dapat membingungkan konsumen. Hak Paten sangat sulit didapatkan untuk resep makanan, sementara pilihan lain tidak secara langsung menyelesaikan masalah peniruan identitas merek.", "catatan": "Teks stimulus untuk soal 26-30 direkonstruksi dari halaman 128 (paragraf pembuka bersama) dan 130-131 (detail per soal); nominal harga dan HPP diverifikasi silang dengan perhitungan pada pembahasan soal 28 dan konsisten."}, {"nomor": 27, "tipe": "pilihan_ganda", "konteks_bersama_id": "donutopia_26_30", "teks_soal": "Tawaran kerja sama dari kafe lokal, di mana kafe akan menjual donat \"Donutopia\" dengan sistem konsinyasi (titip jual), merupakan bagian dari penerapan strategi .... (TKA 2025)", "opsi": [{"label": "A", "teks": "lisensi (licensing)"}, {"label": "B", "teks": "usaha patungan (joint venture)"}, {"label": "C", "teks": "waralaba (franchise)"}, {"label": "D", "teks": "penjualan putus (direct purchase)"}, {"label": "E", "teks": "konsinyasi (consignment)"}], "jawaban_benar": "E", "penjelasan": "Soal ini mengukur pemahaman siswa terhadap istilah-istilah dalam saluran distribusi dan penjualan. Konsinyasi adalah sistem kerja sama penjualan di mana satu pihak (pemilik barang, atau consignor) menitipkan barangnya kepada pihak lain (penjual, atau consignee) untuk dijual. Pembayaran kepada pemilik barang baru dilakukan setelah barang tersebut laku terjual, dan penjual akan mendapatkan komisi sesuai perjanjian. Ini berbeda dengan penjualan putus, di mana penjual membeli barang terlebih dahulu dari produsen sebelum dijual kembali."}, {"nomor": 28, "tipe": "tabel_pernyataan", "konteks_bersama_id": "donutopia_26_30", "teks_soal": "Tim \"Donutopia\" perlu menganalisis profitabilitas tawaran kerja sama konsinyasi dari kafe lokal. Diketahui: Harga Jual = Rp10.000, HPP = Rp6.000, Komisi untuk Kafe = 30% dari Harga Jual.\nBerdasarkan data tersebut, tentukan Benar atau Salah untuk setiap pernyataan analisis keuangan berikut! (TKA 2025)", "kolom_status": ["Benar", "Salah"], "pernyataan": [{"no": 1, "teks": "Besaran komisi dalam rupiah yang akan diterima pihak kafe untuk setiap donat yang terjual adalah Rp3.000.", "status_benar": "Benar"}, {"no": 2, "teks": "Laba bersih yang akan diterima \"Donutopia\" dari setiap donat yang terjual melalui kafe adalah Rp1.000.", "status_benar": "Benar"}, {"no": 3, "teks": "Karena labanya lebih kecil, kerja sama ini sebaiknya langsung ditolak karena merugikan \"Donutopia\".", "status_benar": "Salah"}], "penjelasan": [{"no": 1, "teks": "Komisi Kafe = 30% × Harga Jual = 30% × Rp10.000 = Rp3.000."}, {"no": 2, "teks": "Pendapatan bersih untuk Donutopia = Harga Jual – Komisi Kafe = Rp10.000 – Rp3.000 = Rp7.000. Laba bersih = Pendapatan Bersih – HPP = Rp7.000 – Rp6.000 = Rp1.000."}, {"no": 3, "teks": "Meskipun laba per unitnya lebih kecil (Rp1.000) dibandingkan penjualan langsung (Rp4.000), kerja sama ini tetap menghasilkan keuntungan. Pernyataan bahwa kerja sama ini \"merugikan\" adalah salah. Selain itu, kerja sama ini berpotensi meningkatkan volume penjualan secara signifikan dan memperluas jangkauan pasar sehingga secara total dapat meningkatkan laba keseluruhan usaha."}]}, {"nomor": 29, "tipe": "tabel_pernyataan", "konteks_bersama_id": "donutopia_26_30", "teks_soal": "Sistem penjualan dengan pra-pesan dan pengantaran terbatas menjadi penghambat pertumbuhan \"Donutopia\". Tim tersebut mengevaluasi beberapa solusi untuk mengatasi masalah distribusi ini.\nTentukan Logis atau Tidak Logis untuk setiap solusi distribusi yang mereka pertimbangkan! (TKA 2025)", "kolom_status": ["Logis", "Tidak Logis"], "pernyataan": [{"no": 1, "teks": "Menerima tawaran konsinyasi dari kafe sebagai cara untuk membuka titik distribusi baru tanpa perlu merekrut kurir sendiri.", "status_benar": "Logis"}, {"no": 2, "teks": "Mendaftar sebagai mitra usaha (merchant) pada platform ojek online untuk memungkinkan pengiriman instan ke jangkauan yang lebih luas.", "status_benar": "Logis"}, {"no": 3, "teks": "Menghentikan semua layanan pengantaran dan hanya melayani sistem pengambilan di sekolah untuk menyederhanakan operasi.", "status_benar": "Tidak Logis"}], "penjelasan": [{"no": 1, "teks": "Sistem konsinyasi secara efektif mengubah kafe menjadi \"cabang\" atau titik distribusi. Ini adalah cara yang efisien untuk menjangkau pelanggan di area kafe tersebut tanpa harus menanggung biaya operasional pengantaran."}, {"no": 2, "teks": "Platform ojek online adalah solusi modern yang sangat populer untuk masalah logistik usaha kuliner skala kecil. Ini memungkinkan \"Donutopia\" untuk melayani permintaan on-demand dari area yang jauh lebih luas dengan biaya variabel."}, {"no": 3, "teks": "Menghentikan layanan pengantaran akan semakin mempersempit jangkauan pasar dan memperburuk masalah, bukan menyelesaikannya. Ini adalah langkah mundur yang akan menghambat pertumbuhan usaha."}]}, {"nomor": 30, "tipe": "multi_select", "konteks_bersama_id": "donutopia_26_30", "teks_soal": "Mempertimbangkan semua tantangan (penjualan terbatas, distribusi terbatas) dan peluang (tawaran konsinyasi) yang dihadapi, tim \"Donutopia\" perlu menyusun rencana aksi yang terintegrasi untuk mengembangkan usaha mereka.\nManakah di antara langkah-langkah strategis berikut yang paling komprehensif untuk diterapkan? (Pilihlah jawaban yang benar! Jawaban benar lebih dari satu) (TKA 2025)", "opsi": [{"id": 1, "teks": "Segera mendaftarkan nama dan logo \"Donutopia\" sebagai Merek Dagang untuk mendapatkan perlindungan hukum atas identitas mereka."}, {"id": 2, "teks": "Menerima tawaran konsinyasi dan secara aktif menggunakan kemitraan tersebut sebagai sarana promosi, misalnya dengan menaruh kartu nama atau stiker di kemasan."}, {"id": 3, "teks": "Mengganti bahan baku premium dengan yang lebih murah untuk memperbesar margin keuntungan dari konsinyasi."}, {"id": 4, "teks": "Mengembangkan saluran distribusi baru dengan mendaftar sebagai merchant di aplikasi ojek online."}, {"id": 5, "teks": "Menghentikan penjualan melalui Instagram dan hanya fokus pada konsinyasi di kafe."}], "jawaban_benar": [1, 2, 4], "penjelasan": "Pilihan 1 benar karena perlindungan Merek Dagang adalah langkah fundamental untuk mengatasi masalah peniruan dan membangun aset merek jangka panjang. Pilihan 2 benar karena ini menunjukkan pemikiran strategis; kemitraan konsinyasi tidak hanya dilihat sebagai saluran distribusi, tetapi juga sebagai saluran pemasaran untuk menarik pelanggan baru agar mengenal merek \"Donutopia\" lebih jauh. Pilihan 4 benar karena ini secara langsung mengatasi masalah jangkauan dan membuka sumber pendapatan baru dari pelanggan yang menginginkan pengiriman instan. Pilihan 3 akan merusak proposisi nilai utama mereka, yaitu kualitas premium. Pilihan 5 tidak strategis karena menutup saluran penjualan utama (Instagram) yang telah terbukti berhasil adalah langkah yang kontraproduktif; seharusnya, saluran baru (konsinyasi, ojek online) menjadi pelengkap, bukan pengganti."}]}, "konteks": {"eco_planner_16_20": "Sebuah kelompok siswa SMK bernama \"Eco-Planner\" memulai usaha rintisan yang memproduksi buku agenda (planner) ramah lingkungan. Sampul planner terbuat dari karton daur ulang dan halamannya menggunakan kertas daur ulang. Desainnya dibuat minimalis dan modern untuk menarik target pasar mahasiswa dan pekerja muda yang peduli lingkungan.\n\nProses produksi dilakukan dengan bekerja sama dengan percetakan lokal yang juga menggunakan tinta berbasis kedelai (soy-based ink). Kelompok siswa ini melakukan perakitan akhir dan pengemasan secara mandiri. Penjualan dilakukan melalui media sosial Instagram, sebuah situs web sederhana, serta partisipasi aktif dalam bazar dan acara di sekolah.\n\nSetelah enam bulan berjalan, penjualan cenderung stabil namun tidak mengalami pertumbuhan yang signifikan. Mereka menerima beberapa masukan dari pelanggan, salah satunya adalah sampul planner dianggap terlalu polos. Selain itu, mereka menyadari nama \"Eco-Planner\" bersifat sangat umum dan menemukan ada beberapa toko daring lain yang menggunakan nama serupa, sehingga berpotensi membingungkan calon pembeli. Di sisi lain, biaya produksi yang lebih tinggi karena penggunaan bahan daur ulang dan tinta khusus membuat harga jual planner mereka sedikit lebih mahal dibandingkan planner biasa di pasaran.", "lokal_maju_21_25": "Sekelompok siswa SMK dari jurusan Multimedia dan Manajemen Perkantoran membentuk sebuah agensi jasa digital bernama \"Lokal Maju\". Mereka menawarkan paket jasa pengelolaan media sosial, khususnya untuk Usaha Mikro, Kecil, dan Menengah (UMKM) di kota mereka, seperti kedai kopi, jasa binatu, dan warung makan. Paket jasa seharga Rp750.000 per bulan ini mencakup pembuatan konten (foto produk sederhana dan desain grafis), penjadwalan unggahan setiap hari, serta pengelolaan interaksi dengan pengikut (membalas komentar dan pesan).\n\nTim ini terdiri dari seorang pembuat konten, seorang admin media sosial, dan seorang manajer klien yang juga bertugas mencari klien baru. Aset utama mereka adalah laptop, ponsel pribadi, dan langganan bulanan sebuah aplikasi desain grafis profesional.\n\nSetelah berjalan selama empat bulan dengan tiga klien tetap, mereka menghadapi beberapa tantangan. Klien terbaru mereka, sebuah toko roti, mengeluh karena merasa aktivitas di media sosial belum memberikan dampak langsung pada peningkatan penjualan roti mereka. Di sisi lain, tim \"Lokal Maju\" merasa kesulitan meyakinkan calon klien baru yang masih skeptis terhadap manfaat jasa digital.", "dauran_denim_26_30": "Sekelompok siswa SMK Jurusan Tata Busana dan Pemasaran mendirikan sebuah wirausaha bernama \"Dauran Denim\". Mereka mengolah kembali celana jin bekas atau sisa produksi garmen yang tidak lolos kontrol kualitas menjadi produk fesyen baru seperti tote bag, dompet, dan topi bucket. Setiap produk yang dihasilkan bersifat unik karena corak dan warna bahan jin yang berbeda-beda. Sebagai ciri khas, mereka menambahkan emblem kulit dengan logo \"Dauran Denim\" pada setiap item.\n\nSumber bahan baku utama mereka adalah donasi jin bekas dari lingkungan sekolah dan pembelian jin cacat produksi dalam jumlah besar dari pabrik garmen lokal dengan harga sangat murah. Proses pemotongan dan penjahitan dilakukan oleh para siswa sendiri menggunakan fasilitas mesin jahit di sekolah.\n\nProduk mereka sangat diminati dan seringkali habis terjual di bazar sekolah. Kini, mereka menghadapi beberapa tantangan. Pertama, karena setiap produk unik, proses memotret dan membuat deskripsi untuk setiap item saat menjualnya secara online memakan waktu sangat lama. Kedua, mereka merasa nama \"Dauran Denim\" kurang berkesan dan logo mereka belum dilindungi secara hukum. Ketiga, kapasitas produksi mereka sangat terbatas pada waktu luang para siswa sehingga mereka terpaksa menolak pesanan dalam jumlah besar dari sebuah concept store lokal.", "salad_rina_16_20": "Rina, seorang siswi SMK Jurusan Tata Boga, memulai usaha mandiri bernama \"Salad Sehat by Rina\". Ia menjual paket salad sayur segar dengan tiga varian saus (dressing) orisinal buatannya sendiri, yaitu creamy cheese, roasted sesame, dan spicy lime. Pemasaran utamanya dilakukan melalui status WhatsApp dan akun Instagram pribadinya, dengan sistem pemesanan mingguan dan mengantarkan pesanan sendiri setelah jam pulang sekolah ke rumah pelanggan di sekitar lingkungan tempat tinggalnya. Setelah dua bulan berjalan, usahanya cukup digemari oleh teman-teman dan para guru. Namun, seiring bertambahnya pesanan, beberapa masalah mulai muncul.\n\nPertama, ada keluhan mengenai porsi salad yang tidak konsisten, terkadang porsinya banyak, terkadang sedikit. Kedua, ada pelanggan yang menemukan rambut di dalam produknya. Ketiga, karena keterbatasan waktu dan tenaga untuk mengantar, Rina sering menolak pesanan dari pelanggan potensial yang lokasinya lebih jauh dari area layanannya saat ini.", "komet_21_25": "Andi, seorang siswa SMK jurusan Desain Komunikasi Visual (DKV), dan Bima dari jurusan Pemasaran, berkolaborasi menciptakan sebuah komik web (webcomic) berjudul \"Kisah Komet\". Ceritanya mengisahkan petualangan seekor kucing kurir antarplanet bernama Komet. Mereka merilis satu episode baru setiap minggu secara gratis di sebuah platform webcomic populer.\n\nDalam enam bulan, \"Kisah Komet\" berhasil menarik 50.000 pelanggan tetap dan mendapat rating yang sangat tinggi. Banyak penggemar yang meminta merchandise resmi. Sebuah perusahaan minuman bahkan mengajukan proposal kerja sama untuk menggunakan karakter Komet dalam kampanye iklan mereka.\n\nDi tengah peluang tersebut, mereka menghadapi beberapa tantangan. Pertama, mereka tidak memiliki modal dan pengalaman untuk memproduksi merchandise. Kedua, mereka menemukan beberapa toko daring tanpa izin resmi yang telah menjual kaos dan stiker bergambar karakter Komet yang mirip dengan karya asli mereka.", "donutopia_26_30": "Tim siswa SMK Tata Boga dan Pemasaran mendirikan usaha kuliner \"Donutopia\". Mereka membuat donat gourmet dengan cita rasa lokal yang unik, seperti \"Donat Klepon\" (berisi gula merah cair) dan \"Donat Martabak\" (bertopping keju, cokelat, dan kacang). Mereka sangat mengutamakan kualitas bahan baku premium dan kemasan yang menarik secara visual.\n\nHarga Pokok Produksi (HPP) per donat telah mereka hitung sebesar Rp6.000, dan mereka menjualnya seharga Rp10.000 per buah. Penjualan saat ini menggunakan sistem pra-pesan (pre-order) melalui Instagram, dengan opsi pengambilan atau pengantaran terbatas pada hari Rabu dan Jumat.\n\nUsaha mereka mendapat respons positif, namun beberapa tantangan muncul. Pertama, sistem penjualan yang terbatas menghambat potensi pertumbuhan. Kedua, sebuah kafe lokal tertarik untuk menjual donat mereka dengan sistem konsinyasi, di mana kafe akan meminta komisi sebesar 30% dari harga jual. Ketiga, mereka khawatir jika \"Donutopia\" semakin dikenal luas, ada pihak lain yang akan menirunya."}};
+</script>
+<script>
+(function(){
+
+// ---------- utilities ----------
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function uid(){return 'sesi_'+Date.now()+'_'+Math.floor(Math.random()*1000);}
+function esc(s){
+  const d=document.createElement('div'); d.textContent = s==null?'':s; return d.innerHTML;
+}
+function fmtDate(ts){
+  const d = new Date(ts);
+  return d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}) + ' · ' +
+         d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+}
+
+// ---------- data prep ----------
+const ALL_SOAL = [];
+RAW_DATA.prediksi_1.soal.forEach(s => ALL_SOAL.push(Object.assign({}, s, {_set:'1', _uid:'p1-'+s.nomor})));
+RAW_DATA.prediksi_2.soal.forEach(s => ALL_SOAL.push(Object.assign({}, s, {_set:'2', _uid:'p2-'+s.nomor})));
+const BY_UID = {};
+ALL_SOAL.forEach(s => BY_UID[s._uid] = s);
+
+// ---------- storage ----------
+const LS_KEY = 'pkwu_sessions_v1';
+function loadSessions(){
+  try{ return JSON.parse(localStorage.getItem(LS_KEY)) || []; }catch(e){ return []; }
+}
+function saveSessions(list){
+  localStorage.setItem(LS_KEY, JSON.stringify(list));
+}
+function upsertSession(sess){
+  const list = loadSessions();
+  const idx = list.findIndex(s=>s.id===sess.id);
+  if(idx>=0) list[idx]=sess; else list.unshift(sess);
+  saveSessions(list);
+}
+function getSession(id){
+  return loadSessions().find(s=>s.id===id);
+}
+function deleteSession(id){
+  saveSessions(loadSessions().filter(s=>s.id!==id));
+}
+
+// ---------- toast ----------
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+// ---------- app state / router ----------
+const app = document.getElementById('app');
+const topbar = document.getElementById('topbar');
+let current = null; // current session object while quizzing
+
+function setTopbar(visible, done, total){
+  topbar.style.display = visible ? 'block' : 'none';
+  if(visible){
+    const pct = total ? Math.round(done/total*100) : 0;
+    document.getElementById('progressFill').style.width = pct+'%';
+    document.getElementById('progressLabel').textContent = done+' / '+total;
+  }
+}
+
+function goHome(){
+  current = null;
+  setTopbar(false);
+  renderHome();
+  window.scrollTo(0,0);
+}
+
+// ---------- HOME ----------
+function renderHome(){
+  const sessions = loadSessions();
+  const drafts = sessions.filter(s=>!s.finishedAt);
+  const done = sessions.filter(s=>s.finishedAt).sort((a,b)=>b.finishedAt-a.finishedAt);
+
+  let html = '';
+  html += '<header class="hero"><h1>Latihan Soal TKA PKWU</h1>';
+  html += '<p>Bank soal Produk/Projek Kreatif dan Kewirausahaan &mdash; Prediksi 1 &amp; 2. Urutan soal diacak setiap sesi, progres tersimpan otomatis.</p></header>';
+
+  if(drafts.length){
+    html += '<div class="section-title">Lanjutkan sesi</div>';
+    drafts.forEach(s=>{
+      const pct = Math.round(s.order.length ? (s.currentIndex/s.order.length*100) : 0);
+      html += '<div class="card draft-card" data-resume="'+s.id+'">'+
+        '<div><div>'+esc(setLabel(s.setKey))+'</div>'+
+        '<div class="draft-meta">Soal '+(s.currentIndex+1)+' dari '+s.order.length+' &middot; '+fmtDate(s.startedAt)+'</div></div>'+
+        '<div class="draft-right"><span class="draft-pct">'+pct+'%</span>'+
+        '<div class="draft-bar"><div class="draft-bar-fill" style="width:'+pct+'%"></div></div></div>'+
+        '</div>';
+    });
+  }
+
+  html += '<div class="section-title">Mulai latihan baru</div>';
+  html += '<div class="mode-grid">';
+  html += modeCard('1', 'Prediksi 1', '30 soal');
+  html += modeCard('2', 'Prediksi 2', '30 soal');
+  html += '<div class="mode-card wide" data-start="gabungan"><span class="label">Gabungan &mdash; semua soal</span><span class="draft-pct">60 soal</span></div>';
+  html += '</div>';
+
+  html += '<div class="section-title">Riwayat</div>';
+  if(done.length===0){
+    html += '<div class="empty-hint">Belum ada sesi yang selesai.</div>';
+  }else{
+    html += '<div class="card">';
+    done.slice(0,8).forEach(s=>{
+      const pct = Math.round(s.score/s.order.length*100);
+      const cls = pct>=75?'good':(pct>=50?'mid':'low');
+      html += '<div class="history-row" data-review="'+s.id+'">'+
+        '<div><div>'+esc(setLabel(s.setKey))+'</div>'+
+        '<div class="draft-meta">'+fmtDate(s.finishedAt)+'</div></div>'+
+        '<div class="history-score '+cls+'">'+s.score+'/'+s.order.length+'</div>'+
+        '</div>';
+    });
+    html += '</div>';
+  }
+
+  html += '<footer class="appfoot">Data soal ditranskripsi dari buku prediksi TKA PKWU &mdash; untuk latihan pribadi.</footer>';
+
+  app.innerHTML = html;
+
+  app.querySelectorAll('[data-resume]').forEach(el=>{
+    el.addEventListener('click', ()=> resumeSession(el.getAttribute('data-resume')));
+  });
+  app.querySelectorAll('[data-start]').forEach(el=>{
+    el.addEventListener('click', ()=> startSession(el.getAttribute('data-start')));
+  });
+  app.querySelectorAll('[data-review]').forEach(el=>{
+    el.addEventListener('click', ()=> renderResult(getSession(el.getAttribute('data-review'))));
+  });
+}
+
+function modeCard(key,title,sub){
+  return '<div class="mode-card" data-start="'+key+'"><span class="num">P'+key+'</span><span class="label">'+title+' &middot; '+sub+'</span></div>';
+}
+function setLabel(key){
+  if(key==='1') return 'Prediksi 1';
+  if(key==='2') return 'Prediksi 2';
+  return 'Gabungan (Prediksi 1 & 2)';
+}
+
+// ---------- START / RESUME ----------
+function startSession(setKey){
+  let pool;
+  if(setKey==='1') pool = ALL_SOAL.filter(s=>s._set==='1');
+  else if(setKey==='2') pool = ALL_SOAL.filter(s=>s._set==='2');
+  else pool = ALL_SOAL;
+
+  const order = shuffle(pool.map(s=>s._uid));
+  current = {
+    id: uid(),
+    setKey: setKey,
+    order: order,
+    currentIndex: 0,
+    answers: {},      // uid -> user answer
+    results: {},      // uid -> bool correct
+    score: 0,
+    startedAt: Date.now(),
+    finishedAt: null
+  };
+  upsertSession(current);
+  setTopbar(true, 0, order.length);
+  renderQuestion();
+  window.scrollTo(0,0);
+}
+
+function resumeSession(id){
+  current = getSession(id);
+  if(!current){ goHome(); return; }
+  setTopbar(true, current.currentIndex, current.order.length);
+  renderQuestion();
+  window.scrollTo(0,0);
+}
+
+// ---------- QUIZ ----------
+let pendingSelection = null; // holds in-progress (unsubmitted) answer for current soal
+let submitted = false;
+
+function renderQuestion(){
+  const uidNow = current.order[current.currentIndex];
+  const soal = BY_UID[uidNow];
+  submitted = current.answers.hasOwnProperty(uidNow);
+  pendingSelection = submitted ? current.answers[uidNow] : (soal.tipe==='multi_select' ? [] : (soal.tipe==='tabel_pernyataan' ? {} : null));
+
+  setTopbar(true, current.currentIndex, current.order.length);
+
+  let html = '<div class="quiz-wrap">';
+  html += '<div class="qnum">'+String(current.currentIndex+1).padStart(2,'0')+'</div>';
+  html += '<div class="qtype-label">'+typeLabel(soal.tipe)+' &middot; '+setLabel(soal._set)+' &middot; Soal No. '+soal.nomor+'</div>';
+
+  if(soal.konteks_bersama_id){
+    const ctx = findKonteks(soal);
+    if(ctx) html += '<div class="konteks-box">'+esc(ctx)+'</div>';
+  }
+
+  html += '<div class="qtext">'+esc(soal.teks_soal)+'</div>';
+
+  html += '<div id="answerArea">'+renderAnswerArea(soal)+'</div>';
+
+  html += '<div id="feedbackArea">'+(submitted ? renderFeedback(soal) : '')+'</div>';
+
+  html += '<div class="btn-row">';
+  if(!submitted){
+    html += '<button class="btn btn-primary btn-block" id="btnSubmit" disabled>Jawab</button>';
+  }else{
+    const isLast = current.currentIndex === current.order.length-1;
+    html += '<button class="btn btn-primary btn-block" id="btnNext">'+(isLast?'Lihat hasil':'Soal berikutnya')+'</button>';
+  }
+  html += '</div>';
+  html += '<div class="btn-row"><button class="link-btn" id="btnExit">Simpan &amp; kembali ke beranda</button></div>';
+  html += '</div>';
+
+  app.innerHTML = html;
+  wireAnswerArea(soal);
+
+  const bs = document.getElementById('btnSubmit');
+  if(bs) bs.addEventListener('click', submitAnswer);
+  const bn = document.getElementById('btnNext');
+  if(bn) bn.addEventListener('click', nextQuestion);
+  document.getElementById('btnExit').addEventListener('click', ()=>{
+    upsertSession(current);
+    showToast('Progres tersimpan');
+    setTimeout(goHome, 500);
+  });
+
+  updateSubmitEnabled(soal);
+}
+
+function findKonteks(soal){
+  if(!soal.konteks_bersama_id) return null;
+  return (RAW_DATA.konteks && RAW_DATA.konteks[soal.konteks_bersama_id]) || null;
+}
+
+function typeLabel(tipe){
+  if(tipe==='pilihan_ganda') return 'Pilihan ganda';
+  if(tipe==='multi_select') return 'Pilihan ganda &middot; jawaban benar lebih dari satu';
+  if(tipe==='tabel_pernyataan') return 'Tabel pernyataan';
+  return tipe;
+}
+
+function renderAnswerArea(soal){
+  if(soal.tipe==='pilihan_ganda'){
+    let h = '<div class="opsi-list">';
+    soal.opsi.forEach(o=>{
+      h += '<label class="opsi" data-val="'+o.label+'">'+
+        '<input type="radio" name="ans" value="'+o.label+'">'+
+        '<span><span class="lab">'+o.label+'.</span>'+esc(o.teks)+'</span></label>';
+    });
+    h += '</div>';
+    return h;
+  }
+  if(soal.tipe==='multi_select'){
+    let h = '<div class="opsi-list">';
+    soal.opsi.forEach(o=>{
+      h += '<label class="opsi" data-val="'+o.id+'">'+
+        '<input type="checkbox" value="'+o.id+'">'+
+        '<span>'+esc(o.teks)+'</span></label>';
+    });
+    h += '</div>';
+    return h;
+  }
+  if(soal.tipe==='tabel_pernyataan'){
+    let h = '<table class="pernyataan"><thead><tr><th style="width:36px;">No.</th><th>Pernyataan</th>';
+    soal.kolom_status.forEach(c=> h += '<th class="stat-col">'+esc(c)+'</th>');
+    h += '</tr></thead><tbody>';
+    soal.pernyataan.forEach(p=>{
+      h += '<tr data-row="'+p.no+'"><td>'+p.no+'</td><td>'+esc(p.teks)+'</td>';
+      soal.kolom_status.forEach(c=>{
+        h += '<td class="stat-col"><input type="radio" name="row'+p.no+'" value="'+esc(c)+'"></td>';
+      });
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+    return h;
+  }
+  return '';
+}
+
+function wireAnswerArea(soal){
+  if(soal.tipe==='pilihan_ganda'){
+    document.querySelectorAll('.opsi').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        pendingSelection = el.getAttribute('data-val');
+        document.querySelectorAll('.opsi').forEach(o=>o.classList.remove('selected'));
+        el.classList.add('selected');
+        el.querySelector('input').checked = true;
+        updateSubmitEnabled(soal);
+      });
+    });
+  } else if(soal.tipe==='multi_select'){
+    document.querySelectorAll('.opsi').forEach(el=>{
+      el.addEventListener('click', (e)=>{
+        const cb = el.querySelector('input');
+        if(e.target !== cb) cb.checked = !cb.checked;
+        const val = parseInt(el.getAttribute('data-val'),10);
+        if(cb.checked){
+          el.classList.add('selected');
+          if(!pendingSelection.includes(val)) pendingSelection.push(val);
+        } else {
+          el.classList.remove('selected');
+          pendingSelection = pendingSelection.filter(v=>v!==val);
+        }
+        updateSubmitEnabled(soal);
+      });
+    });
+  } else if(soal.tipe==='tabel_pernyataan'){
+    document.querySelectorAll('table.pernyataan input').forEach(inp=>{
+      inp.addEventListener('change', ()=>{
+        const row = inp.closest('tr').getAttribute('data-row');
+        pendingSelection[row] = inp.value;
+        updateSubmitEnabled(soal);
+      });
+    });
+  }
+}
+
+function updateSubmitEnabled(soal){
+  const btn = document.getElementById('btnSubmit');
+  if(!btn) return;
+  let ok = false;
+  if(soal.tipe==='pilihan_ganda') ok = !!pendingSelection;
+  else if(soal.tipe==='multi_select') ok = pendingSelection.length>0;
+  else if(soal.tipe==='tabel_pernyataan') ok = soal.pernyataan.every(p=>pendingSelection[p.no]);
+  btn.disabled = !ok;
+}
+
+function isCorrect(soal, ans){
+  if(soal.tipe==='pilihan_ganda') return ans===soal.jawaban_benar;
+  if(soal.tipe==='multi_select'){
+    const a = ans.slice().sort();
+    const b = soal.jawaban_benar.slice().sort();
+    return a.length===b.length && a.every((v,i)=>v===b[i]);
+  }
+  if(soal.tipe==='tabel_pernyataan'){
+    return soal.pernyataan.every(p=> ans[p.no]===p.status_benar);
+  }
+  return false;
+}
+
+function submitAnswer(){
+  const uidNow = current.order[current.currentIndex];
+  const soal = BY_UID[uidNow];
+  const correct = isCorrect(soal, pendingSelection);
+
+  current.answers[uidNow] = pendingSelection;
+  current.results[uidNow] = correct;
+  if(correct) current.score++;
+  upsertSession(current);
+
+  submitted = true;
+  lockAnswerArea(soal, pendingSelection, correct);
+  document.getElementById('feedbackArea').innerHTML = renderFeedback(soal);
+
+  const row = document.querySelector('.btn-row');
+  row.innerHTML = '<button class="btn btn-primary btn-block" id="btnNext">'+
+    (current.currentIndex===current.order.length-1 ? 'Lihat hasil' : 'Soal berikutnya')+'</button>';
+  document.getElementById('btnNext').addEventListener('click', nextQuestion);
+
+  document.getElementById('feedbackArea').scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function lockAnswerArea(soal, ans, correctOverall){
+  if(soal.tipe==='pilihan_ganda'){
+    document.querySelectorAll('.opsi').forEach(el=>{
+      const val = el.getAttribute('data-val');
+      el.querySelector('input').disabled = true;
+      el.style.cursor = 'default';
+      if(val===soal.jawaban_benar) el.classList.add('correct');
+      else if(val===ans) el.classList.add('wrong');
+    });
+  } else if(soal.tipe==='multi_select'){
+    document.querySelectorAll('.opsi').forEach(el=>{
+      const val = parseInt(el.getAttribute('data-val'),10);
+      el.querySelector('input').disabled = true;
+      el.style.cursor = 'default';
+      const shouldBe = soal.jawaban_benar.includes(val);
+      const picked = ans.includes(val);
+      if(shouldBe) el.classList.add('correct');
+      else if(picked) el.classList.add('wrong');
+    });
+  } else if(soal.tipe==='tabel_pernyataan'){
+    document.querySelectorAll('table.pernyataan input').forEach(inp=> inp.disabled = true);
+    soal.pernyataan.forEach(p=>{
+      const tr = document.querySelector('tr[data-row="'+p.no+'"]');
+      if(ans[p.no]===p.status_benar) tr.classList.add('row-correct');
+      else tr.classList.add('row-wrong');
+    });
+  }
+}
+
+function renderFeedback(soal){
+  const uidNow = current.order[current.currentIndex];
+  const ans = current.answers[uidNow];
+  const correct = current.results[uidNow];
+
+  let body = '';
+  if(soal.tipe==='tabel_pernyataan'){
+    body += '<div style="margin-bottom:10px;"><b>Kunci: </b>'+
+      soal.pernyataan.map(p=>p.status_benar).join(', ')+'</div>';
+    soal.penjelasan.forEach(p=>{
+      body += '<div style="margin-bottom:8px;"><b>Pernyataan '+p.no+'.</b> '+esc(p.teks)+'</div>';
+    });
+  } else {
+    if(soal.tipe==='multi_select'){
+      const labels = soal.jawaban_benar.map(id=>{
+        const o = soal.opsi.find(x=>x.id===id);
+        return o ? o.teks : id;
+      });
+      body += '<div style="margin-bottom:10px;"><b>Jawaban benar: </b>'+esc(labels.join('; '))+'</div>';
+    }
+    body += '<div>'+esc(soal.penjelasan)+'</div>';
+  }
+
+  let html = '<div class="feedback'+(correct?'':' wrong')+'">'+
+    '<div class="feedback-title">'+(correct ? 'Benar' : 'Kurang tepat')+'</div>'+
+    '<div class="feedback-body">'+body+'</div>';
+  if(soal.catatan){
+    html += '<div class="feedback-note">Catatan sumber: '+esc(soal.catatan)+'</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function nextQuestion(){
+  if(current.currentIndex < current.order.length-1){
+    current.currentIndex++;
+    upsertSession(current);
+    renderQuestion();
+    window.scrollTo(0,0);
+  } else {
+    current.finishedAt = Date.now();
+    upsertSession(current);
+    renderResult(current);
+    window.scrollTo(0,0);
+  }
+}
+
+// ---------- RESULT ----------
+function renderResult(sess){
+  current = null;
+  setTopbar(false);
+  const total = sess.order.length;
+  const pct = Math.round(sess.score/total*100);
+
+  let html = '<div class="score-hero">';
+  html += '<div class="score-num">'+sess.score+'<span style="font-size:0.4em;color:var(--ink-faint);">/'+total+'</span></div>';
+  html += '<div class="score-sub">'+setLabel(sess.setKey)+' &middot; '+pct+'% benar &middot; '+fmtDate(sess.finishedAt||sess.startedAt)+'</div>';
+  html += '</div>';
+
+  html += '<div class="section-title">Tinjau jawaban</div>';
+  sess.order.forEach((uidX, i)=>{
+    const soal = BY_UID[uidX];
+    const ok = sess.results[uidX];
+    html += '<div class="review-item" data-reviewq="'+i+'" data-sess="'+sess.id+'">'+
+      '<span class="review-dot '+(ok?'ok':'no')+'"></span>'+
+      '<span class="review-num">'+String(i+1).padStart(2,'0')+'</span>'+
+      '<span style="flex:1;color:var(--ink-muted);">'+esc(soal.teks_soal.slice(0,64))+'&hellip;</span>'+
+      '</div>';
+  });
+
+  html += '<div class="btn-row" style="margin-top:26px;">';
+  html += '<button class="btn btn-ghost btn-block" id="btnBackHome">Kembali ke beranda</button>';
+  html += '</div>';
+
+  app.innerHTML = html;
+  document.getElementById('btnBackHome').addEventListener('click', goHome);
+  app.querySelectorAll('[data-reviewq]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      reviewSingle(getSession(el.getAttribute('data-sess')), parseInt(el.getAttribute('data-reviewq'),10));
+    });
+  });
+}
+
+function reviewSingle(sess, i){
+  const uidX = sess.order[i];
+  const soal = BY_UID[uidX];
+  const ans = sess.answers[uidX];
+  const ok = sess.results[uidX];
+
+  let html = '<div class="quiz-wrap">';
+  html += '<button class="link-btn" id="btnBackResult" style="margin-bottom:18px;">&larr; Kembali ke hasil</button>';
+  html += '<div class="qnum">'+String(i+1).padStart(2,'0')+'</div>';
+  html += '<div class="qtype-label">'+typeLabel(soal.tipe)+' &middot; '+setLabel(soal._set)+' &middot; Soal No. '+soal.nomor+'</div>';
+  html += '<div class="qtext">'+esc(soal.teks_soal)+'</div>';
+  html += '<div>'+renderAnswerArea(soal)+'</div>';
+  app.innerHTML = html;
+  lockAnswerArea(soal, ans, ok);
+  document.getElementById('feedbackArea') || (()=>{})();
+  const fbWrap = document.createElement('div');
+  fbWrap.innerHTML = renderFeedback(soal);
+  app.querySelector('.quiz-wrap').appendChild(fbWrap.firstChild);
+
+  document.getElementById('btnBackResult').addEventListener('click', ()=> renderResult(sess));
+  window.scrollTo(0,0);
+}
+
+// ---------- init ----------
+goHome();
+
+})();
+</script>
+</body>
+</html>
